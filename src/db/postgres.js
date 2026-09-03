@@ -73,4 +73,42 @@ async function listSnapshots(limit = 10) {
   return rows.map((r) => ({ id: r.id, createdAt: r.created_at, medias: r.medias }));
 }
 
-module.exports = { backend: 'postgres', addAnalise, listAnalises, getAnalise, setStatus, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots };
+// Distribuição (E1): equipe + patch parcial + meta KV
+async function updateAnalise(id, patch) {
+  const atual = await getAnalise(id);
+  if (!atual) return null;
+  const novo = { ...atual, ...patch, updatedAt: new Date().toISOString() };
+  await pool.query(
+    `UPDATE analises SET status=$2, fonte=$3, url=$4, bairro=$5, score=$6, veredito=$7, origem=$8, whatsapp=$9, dados=$10, updated_at=now() WHERE id=$1`,
+    [id, novo.status || null, novo.fonte || null, novo.url || null, novo.bairro || null, novo.score ?? null, novo.veredito || null, novo.origem || null, novo.whatsapp || null, novo]
+  );
+  return novo;
+}
+async function equipeAdd(nome, whatsapp) {
+  const id = uid();
+  const clean = String(whatsapp || '').replace(/\D/g, '');
+  await pool.query('INSERT INTO equipe (id, nome, whatsapp) VALUES ($1,$2,$3)', [id, nome, clean]);
+  return { id, nome, whatsapp: clean, ativo: true };
+}
+async function equipeList() {
+  const { rows } = await pool.query('SELECT * FROM equipe ORDER BY created_at');
+  return rows.map((r) => ({ id: r.id, nome: r.nome, whatsapp: r.whatsapp, ativo: r.ativo, createdAt: r.created_at }));
+}
+async function equipeToggle(id) {
+  const { rows } = await pool.query('UPDATE equipe SET ativo = NOT ativo WHERE id=$1 RETURNING *', [id]);
+  return rows.length ? { id: rows[0].id, nome: rows[0].nome, whatsapp: rows[0].whatsapp, ativo: rows[0].ativo } : null;
+}
+async function equipeRemove(id) {
+  await pool.query('DELETE FROM equipe WHERE id=$1', [id]);
+  return { ok: true };
+}
+async function metaGet(chave) {
+  const { rows } = await pool.query('SELECT valor FROM meta WHERE chave=$1', [chave]);
+  return rows.length ? rows[0].valor : null;
+}
+async function metaSet(chave, valor) {
+  await pool.query(`INSERT INTO meta (chave, valor) VALUES ($1,$2) ON CONFLICT (chave) DO UPDATE SET valor=$2`, [chave, valor]);
+  return { ok: true };
+}
+
+module.exports = { backend: 'postgres', addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet };

@@ -29,3 +29,16 @@ CREATE TABLE IF NOT EXISTS snapshots (
   created_at TIMESTAMPTZ DEFAULT now(),
   medias JSONB NOT NULL DEFAULT '[]'
 );
+
+-- E1 distribuição
+CREATE TABLE IF NOT EXISTS equipe (
+  id TEXT PRIMARY KEY,
+  nome TEXT NOT NULL,
+  whatsapp TEXT NOT NULL DEFAULT '',
+  ativo BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS meta (
+  chave TEXT PRIMARY KEY,
+  valor JSONB
+);

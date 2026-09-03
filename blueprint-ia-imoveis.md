@@ -240,4 +240,37 @@ Verificação honesta da premissa "todas as fontes têm API": **existe superfíc
 - [x] V4.2: conector NetImóveis WCF (`src/integracoes/api/netimoveis-wcf.js`, endpoint real `GET /api/imovel/lista`, teste mock: 76 BOM / 39 DESCARTAR; live sem chave retorna 401 + `{error}` gracioso). Falta: `NETIMOVEIS_API_KEY` da Rede NetImóveis.
 - [x] V4.3: conector Navent Open (`src/integracoes/api/navent-open.js`, Bearer + sandbox/production + detalhar, teste mock: 65 BOM / 53 REGULAR; sem token retorna `{error}`). Falta: `NAVENT_TOKEN` (client_credentials) + `NAVENT_IMOBILIARIA` + callback de leads.
 - [x] V4.4: dossiê comercial DFImóveis (`docs/proposta-dfimoveis.md`, e-mail pronto p/ `suporte@dfimoveis.com.br`). Falta: preencher placeholders + conta anunciante + piloto 2–5 imóveis.
+
+## 15. Benchmark de mercado + evolução V5 (pesquisa 03/09/2026)
+
+Fontes: comparativos BR 2026 (Kenlo, Vista/Loft, Jetimob, PipeRun, inGaia, ImobTotal, Tecimob) + mercado global (Lofty, Rechat, Shilo, Fello, Revaluate).
+
+### 15.1. Onde estamos vs. mercado
+
+| Dimensão | Mercado | Nós |
+|---|---|---|
+| Score do **imóvel/anúncio** (m², doc, permuta, financiamento) | Ninguém entrega — diferencial nosso | ✅ Core pronto |
+| Score do **lead** (prob. fechamento, estilo Kenlo LIA 250 vars) | Padrão 2026 | ❌ Não temos |
+| Distribuição automática (rodízio, SLA <5min) | PipeRun, CRMs maduros | ❌ Lead entra, para no funil |
+| Follow-up automatizado (sequências, tarefas) | Padrão | ❌ Manual |
+| Match lead × imóvel | Colibex/Roomy, CRMs | ❌ Não temos |
+| WhatsApp conversacional 24/7 p/ cliente final | Gap até nos grandes (só bot de disparo) | ❌ Só corretor |
+| AVM/precificador com explainability | WImóveis precificador; AVMs globais 2,4% erro mediano | 🟡 Heurística c/ motivos |
+| Proposta/contrato digital | Kenlo/Vista | ❌ Blueprint §6 previa, pendente |
+| App mobile / corretor em campo | Jetimob mobile-first | 🟡 Painel responsivo, sem PWA |
+| Dashboard gestor (tempo resposta, conversão/corretor/portal) | Padrão | 🟡 Funil + médias apenas |
+| Cadastro express | Voz (ImobTotal), link (nós) | ✅ Link/texto; sem voz/foto-OCR |
+
+### 15.2. Backlog V5 (ordem impacto × esforço)
+- [ ] **E1 — Distribuição + SLA:** rodízio de corretores, notificação WhatsApp ao responsável, watchdog de SLA (lead >X min sem atendimento → re-rota + alerta). Módulo `src/distribuicao/`.
+- [ ] **E2 — Lead scoring:** probabilidade de fechamento por lead (origem, engajamento, fit com estoque) + fila "ligar primeiro". Não confundir com nosso score do imóvel — os dois se somam.
+- [ ] **E3 — Match lead × imóvel:** cruza perfil do lead com estoque + alertas abaixo da média; envio automático de compatíveis.
+- [ ] **E4 — Follow-up automático:** sequências por estágio, tarefas com vencimento, lembretes WhatsApp.
+- [ ] **E5 — Atendimento 24/7:** bot que apresenta ficha ao cliente final e agenda visita (hoje só atende o corretor).
+- [ ] **E6 — PWA campo:** manifest + instalação + leitura offline do estoque/fichas.
+- [ ] **E7 — Dashboard gestor:** tempo de resposta, conversão por corretor/portal, velocity do funil.
+- [ ] **E8 — Proposta digital:** gerar proposta a partir da ficha (fecha o botão pendente do §6).
+- [ ] **E9 — Reativação de base:** varredura periódica de leads frios com novo fit (estilo Fello/Revaluate).
+
+Posicionamento: o mercado faz **lead-score**; nós fazemos **deal-score**. V5 completa o ciclo sem perder o diferencial.
 - Pré-requisitos comerciais (fora do código): plano de anunciante com código válido em cada portal; sem isso, camada 1 já entrega todo o valor de análise.

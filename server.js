@@ -15,6 +15,39 @@ const { gerarLegenda } = require('./src/ia/legenda');
 const { alertasOportunidade } = require('./src/alertas');
 const { gerarFeedXml, contentType: feedContentType } = require('./src/feed/xml');
 const { normalizarLead } = require('./src/leads');
+const { distribuirLead, checarFila, slaStatus, mensagemCorretor } = require('./src/distribuicao');
+const { scoreLead } = require('./src/scoring/lead-score');
+const { matchLeadImovel, extrairPerfil } = require('./src/match');
+
+const RR_CHAVE = 'distribuicao:rr';
+async function distribuirESalvar(reg) {
+  const equipe = await store.equipeList();
+  const estado = (await store.metaGet(RR_CHAVE)) || { ultimoIndice: -1 };
+  const d = distribuirLead(reg, equipe, estado);
+  if (d.proximoEstado) await store.metaSet(RR_CHAVE, d.proximoEstado);
+  const completo = { ...reg, corretorId: d.corretorId || null, corretorNome: d.corretorNome || null, distribuidoEm: d.distribuidoEm || null };
+  const saved = await store.addAnalise(completo);
+  if (d.corretorId && d.whatsapp) {
+    try { await sendText(d.whatsapp, mensagemCorretor(saved)); } catch (e) { console.error('falha ao notificar corretor:', e.message); }
+  }
+  return { saved, dist: d };
+}
+function isLead(a) {
+  return a && typeof a.origem === 'string' && a.origem.indexOf('lead-') === 0;
+}
+async function filaQuente() {
+  const analises = await store.listAnalises({});
+  const mediaScores = {};
+  for (const a of analises) {
+    const cod = a.lead?.codigoImovel || a.id;
+    if (typeof a.score === 'number') mediaScores[cod] = a.score;
+  }
+  const agora = Date.now();
+  return analises
+    .filter(isLead)
+    .map((l) => ({ ...l, leadScore: scoreLead(l, { mediaScores, agoraMs: agora }), sla: slaStatus(l, agora) }))
+    .sort((x, y) => y.leadScore.score - x.leadScore.score);
+}
 
 const STATUS_VALIDOS = ['novo', 'analisado', 'visitado', 'proposta', 'fechado', 'descartado'];
 
@@ -140,8 +173,36 @@ const server = http.createServer(async (req, res) => {
     const payload = await readJson(req);
     const reg = normalizarLead(portal, payload);
     if (reg.error) return send(res, 400, { error: reg.error });
-    const saved = await store.addAnalise(reg);
-    return send(res, 200, { ok: true, id: saved.id });
+    const { saved, dist } = await distribuirESalvar(reg);
+    return send(res, 200, { ok: true, id: saved.id, corretor: dist.corretorNome || null });
+  }
+  // E1 equipe
+  if (req.method === 'GET' && path === '/api/equipe') return send(res, 200, await store.equipeList());
+  if (req.method === 'POST' && path === '/api/equipe') {
+    const { nome, whatsapp, id, toggle } = await readJson(req);
+    if (toggle && id) {
+      const rec = await store.equipeToggle(id);
+      return rec ? send(res, 200, rec) : send(res, 404, { error: 'não encontrado' });
+    }
+    if (!nome) return send(res, 400, { error: 'informe nome' });
+    return send(res, 200, await store.equipeAdd(nome, whatsapp));
+  }
+  if (req.method === 'DELETE' && path === '/api/equipe') {
+    await store.equipeRemove(query(req.url).id);
+    return send(res, 200, { ok: true });
+  }
+  // E1 SLA + E2 fila quente
+  if (req.method === 'GET' && path === '/api/sla') {
+    const leads = (await store.listAnalises({})).filter(isLead);
+    return send(res, 200, checarFila(leads, await store.equipeList(), Date.now()));
+  }
+  if (req.method === 'GET' && path === '/api/fila') return send(res, 200, await filaQuente());
+  // E3 match
+  if (req.method === 'GET' && path === '/api/match') {
+    const lead = await store.getAnalise(query(req.url).id);
+    if (!lead || !isLead(lead)) return send(res, 404, { error: 'lead não encontrado' });
+    const analises = await store.listAnalises({});
+    return send(res, 200, { idLead: lead.id, perfil: extrairPerfil(lead, analises), matches: matchLeadImovel(lead, analises, {}) });
   }
 
   send(res, 404, { error: 'rota não encontrada' });

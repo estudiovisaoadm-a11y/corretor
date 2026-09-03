@@ -13,7 +13,7 @@ function load() {
     db.snapshots = db.snapshots || [];
     return db;
   } catch {
-    return { analises: [], watchlist: [], snapshots: [] };
+    return { analises: [], watchlist: [], snapshots: [], equipe: [], meta: {} };
   }
 }
 function save(db) {
@@ -90,4 +90,50 @@ function listSnapshots(limit = 10) {
   return load().snapshots.slice(0, limit);
 }
 
-module.exports = { backend: 'json', addAnalise, listAnalises, getAnalise, setStatus, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots };
+function updateAnalise(id, patch) {
+  const db = load();
+  const rec = db.analises.find((a) => a.id === id);
+  if (!rec) return null;
+  Object.assign(rec, patch);
+  rec.updatedAt = new Date().toISOString();
+  save(db);
+  return rec;
+}
+// Equipe (E1 — distribuição) + meta KV (estado round-robin)
+function equipeAdd(nome, whatsapp) {
+  const db = load();
+  db.equipe = db.equipe || [];
+  const rec = { id: uid(), nome, whatsapp: String(whatsapp || '').replace(/\D/g, ''), ativo: true, createdAt: new Date().toISOString() };
+  db.equipe.push(rec);
+  save(db);
+  return rec;
+}
+function equipeList() {
+  return load().equipe || [];
+}
+function equipeToggle(id) {
+  const db = load();
+  const rec = (db.equipe || []).find((e) => e.id === id);
+  if (!rec) return null;
+  rec.ativo = !rec.ativo;
+  save(db);
+  return rec;
+}
+function equipeRemove(id) {
+  const db = load();
+  db.equipe = (db.equipe || []).filter((e) => e.id !== id);
+  save(db);
+  return { ok: true };
+}
+function metaGet(chave) {
+  return (load().meta || {})[chave] ?? null;
+}
+function metaSet(chave, valor) {
+  const db = load();
+  db.meta = db.meta || {};
+  db.meta[chave] = valor;
+  save(db);
+  return { ok: true };
+}
+
+module.exports = { backend: 'json', addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet };

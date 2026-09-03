@@ -2,30 +2,46 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head><body>
-<header><b>IA Imóveis</b> — DFImóveis • WImóveis • NetImóveis | <span id="total"></span><br><span class="cfg">Backend: <input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"> <button onclick="setApi()">usar</button></span></header>
+<header class="hero"><div class="hero-inner">
+<div class="hero-top"><div class="brand"><span class="brand-mark">⌂</span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
+<div class="hero-grid"><div class="hero-copy">
+<h1 class="hero-title">Encontre o imóvel ideal com inteligência</h1>
+<p class="hero-sub">Cole o link do anúncio e receba score 0–100, preço por m², leitura de bairro, financiamento e documentação — tudo em um painel.</p>
+<div class="hero-stats"><div class="hstat"><b>0–100</b><span>score da IA</span></div><div class="hstat"><b>R$/m²</b><span>por bairro</span></div><div class="hstat"><b>Docs</b><span>verificados</span></div><div class="hstat"><b>24h</b><span>monitor ativo</span></div></div>
+<span class="cfg">Backend: <input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"> <button onclick="setApi()">usar</button></span>
+</div><div class="hero-photo" aria-hidden="true"><div class="hero-photo-card"><span class="hero-price">Ap 70m² • R$ 550 mil</span><span class="hero-score">82 • Ótima</span></div></div></div>
+</div></header>
 <main>
-<section><h3>Nova análise</h3>
+<section class="card search-card"><div class="search-tabs" aria-hidden="true"><span class="tab active">Nova análise</span><span class="tab">Comparar</span><span class="tab">Monitor</span></div><h3>Nova análise</h3>
 <input id="url" class="w-full" placeholder="Cole o link do anúncio" onkeydown="if(event.key==='Enter'){analisar()}"><br><br>
 <textarea id="texto" class="w-full" rows="3" placeholder="Ou cole o texto: Ap 70m2 R$ 550 mil, aceita financiamento, escritura e habite-se ok"></textarea><br><br>
 <button id="btnAnalisar" onclick="analisar()">Analisar e salvar</button> <span id="nova"></span></section>
 <div class="grid">
-<section><h3>Filtros + Histórico</h3>
-<input id="q" placeholder="buscar..." oninput="carregar()">
+<section class="card"><h3>Filtros + Histórico</h3>
+<div class="filters"><input id="q" placeholder="buscar..." oninput="carregar()">
 <select id="fFonte" onchange="carregar()"><option value="">todas fontes</option><option>dfimoveis</option><option>wimoveis</option><option>netimoveis</option><option>manual</option></select>
 <select id="fStatus" onchange="carregar()"><option value="">todos status</option><option>novo</option><option>analisado</option><option>visitado</option><option>proposta</option><option>fechado</option><option>descartado</option></select>
 <label><input type="checkbox" id="fFin" onchange="carregar()"> financiáveis</label>
-<label><input type="checkbox" id="fDoc" onchange="carregar()"> com escritura</label><br><br>
-<button onclick="compararSel()">Comparar selecionados (2-3)</button>
+<label><input type="checkbox" id="fDoc" onchange="carregar()"> com escritura</label></div>
+<button onclick="compararSel()">Comparar selecionados (2-3)</button><br><br>
 <div id="hist"></div></section>
-<section><h3>Comparador</h3><div id="comp">Selecione 2-3 no histórico.</div>
+<section class="card"><h3>Comparador</h3><div id="comp">Selecione 2-3 no histórico.</div>
 <h3>Funil CRM</h3><div id="funil"></div>
 <h3>Média m² por bairro (base local)</h3><div id="medias"></div>
 <h3>Alertas — abaixo da média</h3><div id="alertas"></div></section>
 </div>
-<section><h3>Legenda p/ cliente</h3><input id="legId" placeholder="id da análise" style="width:300px"> <button onclick="legenda()">Gerar legenda</button> <button onclick="valorizacao()">Previsão valorização</button><div id="leg"></div></section>
-<section><h3>Monitor diário (watchlist)</h3>
+<section class="card"><h3>Legenda p/ cliente</h3><input id="legId" placeholder="id da análise" style="width:300px"> <button onclick="legenda()">Gerar legenda</button> <button onclick="valorizacao()">Previsão valorização</button><div id="leg"></div></section>
+<section class="card"><h3>Monitor diário (watchlist)</h3>
 <input id="wUrl" class="w-55" placeholder="https://... busca salva"> <input id="wRot" class="w-25" placeholder="rótulo"> <button onclick="wAdd()">Adicionar</button> <button onclick="mRun()">Rodar agora</button><div id="mon"></div></section>
-<section><h3>Mapa de calor — R$/m² por bairro</h3><div id="map"></div><div class="map-legend"><span><i style="background:#15803d"></i>até 8k</span><span><i style="background:var(--score-regular)"></i>8k–10k</span><span><i style="background:#b91c1c"></i>acima de 10k</span></div><div id="mapTab"></div></section>
+<section class="card"><h3>Mapa de calor — R$/m² por bairro</h3><div id="map"></div><div class="map-legend"><span><i style="background:#15803d"></i>até 8k</span><span><i style="background:var(--score-regular)"></i>8k–10k</span><span><i style="background:#b91c1c"></i>acima de 10k</span></div><div id="mapTab"></div></section>
+<section class="card"><h3>Atendimento — equipe, fila e match</h3><div class="grid">
+<div><h4>Equipe (rodízio automático)</h4>
+<input id="eqNome" class="w-55" placeholder="Nome do corretor"> <input id="eqZap" class="w-25" placeholder="WhatsApp ex: 5561999999999"> <button onclick="eqAdd()">Adicionar</button><div id="eq"></div>
+<h4>SLA</h4><div id="sla"></div></div>
+<div><h4>Fila — ligar primeiro</h4><button onclick="filaCarregar()">Atualizar fila</button><div id="fila"></div>
+<h4>Match lead × imóvel</h4><input id="matchId" placeholder="id do lead" style="width:300px"> <button onclick="matchVer()">Ver matches</button><div id="match"></div></div>
+</div></section>
+<section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico">✓</span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico">⌂</span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
 </main>
 <script>
 // API_BASE: ?api= na URL (salva) > localStorage > mesma origem. Permite hospedar este HTML em PHP/HTML estático.
@@ -75,6 +91,13 @@ async function wDel(id){if(!confirm('Excluir este item da watchlist?'))return;tr
 async function mRun(){try{mon.innerHTML='<div class="skeleton">Rodando monitor...</div>';const r=await fetch(api('/api/monitor/run'),{method:'POST'}).then(r=>r.json());mon.innerHTML='<b>verificadas:</b> '+r.verificadas+' <b>novas:</b> '+r.novas+' <b>alertas:</b> '+r.alertas;carregar();monCarregar();}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao rodar monitor: '+((e&&e.message)?e.message:e)+'</div>';}}
 async function monCarregar(){try{const w=await fetch(api('/api/watchlist')).then(r=>r.json());mon.innerHTML=w.length?w.map(x=>'<div>• '+x.rotulo+' <small>'+x.url+'</small> <button class="btn-danger" onclick="wDel(\''+x.id+'\')">excluir</button></div>').join(''):'Nenhum item na watchlist. Adicione uma busca acima.';}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao carregar watchlist: '+((e&&e.message)?e.message:e)+'</div>';}}
 async function mapaCarregar(){try{const d=await fetch(api('/api/mapa')).then(r=>r.json());mapTab.innerHTML=d.length?'<div class="table-wrap"><table>'+d.map(x=>'<tr><td>'+x.bairro+'</td><td><b>'+x.media+'</b></td><td>n='+x.qtd+'</td></tr>').join('')+'</table></div>':'Sem dados para o mapa ainda.';if(!window.L){map.innerHTML='<div class="alert-doc">Mapa indisponível (Leaflet/CDN offline). Veja a tabela abaixo.</div>';return;}if(d.length){if(!window._map){window._map=L.map('map').setView([-15.79,-47.93],11);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(window._map);}d.forEach(x=>L.circle([x.lat,x.lng],{radius:600+x.qtd*300,color:x.media>10000?'red':x.media>8000?'orange':'green'}).addTo(window._map).bindPopup(x.bairro+': R$'+x.media+'/m² (n='+x.qtd+')'));}}catch(e){mapTab.innerHTML='<div class="alert-doc crit">Falha ao carregar mapa: '+((e&&e.message)?e.message:e)+'</div>';}}
- carregar();monCarregar();mapaCarregar();
+function leadBadge(f){return '<span class="score-badge '+(f==='QUENTE'?'score-otimo':f==='MORNO'?'score-regular':'st-descartado')+'">'+f+'</span>';}
+async function eqCarregar(){try{const e=await fetch(api('/api/equipe')).then(r=>r.json());eq.innerHTML=e.length?e.map(x=>'<div>• '+x.nome+' <small>'+x.whatsapp+'</small> <span class="pill '+(x.ativo?'st-fechado':'st-descartado')+'">'+(x.ativo?'ativo':'pausado')+'</span> <button class="btn-ghost" onclick="eqToggle(\''+x.id+'\')">pausar/ativar</button> <button class="btn-danger" onclick="eqDel(\''+x.id+'\')">x</button></div>').join(''):'Nenhum corretor na equipe. Adicione acima.';}catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao carregar equipe.</div>';}}
+async function eqAdd(){try{await fetch(api('/api/equipe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome:eqNome.value,whatsapp:eqZap.value})});eqNome.value='';eqZap.value='';eqCarregar();}catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao adicionar.</div>';}}
+async function eqToggle(id){try{await fetch(api('/api/equipe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,toggle:true})});eqCarregar();}catch(e){}}
+async function eqDel(id){if(!confirm('Remover este corretor da equipe?'))return;try{await fetch(api('/api/equipe?id='+id),{method:'DELETE'});eqCarregar();}catch(e){}}
+async function filaCarregar(){try{const f=await fetch(api('/api/fila')).then(r=>r.json());fila.innerHTML=f.length?f.map(l=>'<div>'+leadBadge(l.leadScore.faixa)+' <b>'+((l.lead&&l.lead.nome)||'sem nome')+'</b> <small>'+l.fonte+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small> <button class="btn-ghost" onclick="matchVer(\''+l.id+'\')">match</button></div>').join(''):'Sem leads na fila.';const s=await fetch(api('/api/sla')).then(r=>r.json());sla.innerHTML='a distribuir: <b>'+s.paraDistribuir.length+'</b> • SLA estourado: <b>'+s.slaEstourado.length+'</b> • ok: <b>'+s.ok.length+'</b>';}catch(e){fila.innerHTML='<div class="alert-doc crit">Falha ao carregar fila.</div>';}}
+async function matchVer(id){id=id||matchId.value;if(!id){match.innerHTML='Informe o id do lead.';return;}try{const m=await fetch(api('/api/match?id='+id)).then(r=>r.json());if(m.error){match.innerHTML=m.error;return;}match.innerHTML='<small>perfil: '+JSON.stringify(m.perfil)+'</small>'+(m.matches.length?m.matches.map(x=>'<div>• <b>'+x.pontos+'pts</b> imóvel ...'+x.analiseId.slice(-4)+' (score '+x.scoreImovel+') — '+x.motivos.join('; ')+'</div>').join(''):'<div>Sem matches.</div>');}catch(e){match.innerHTML='<div class="alert-doc crit">Falha ao buscar matches.</div>';}}
+ carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
 </script>
 </body></html>

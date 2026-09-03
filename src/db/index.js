@@ -27,5 +27,12 @@ module.exports = {
   watchList: wrap('watchList'),
   watchRemove: wrap('watchRemove'),
   addSnapshot: wrap('addSnapshot'),
-  listSnapshots: wrap('listSnapshots')
+  listSnapshots: wrap('listSnapshots'),
+  updateAnalise: wrap('updateAnalise'),
+  equipeAdd: wrap('equipeAdd'),
+  equipeList: wrap('equipeList'),
+  equipeToggle: wrap('equipeToggle'),
+  equipeRemove: wrap('equipeRemove'),
+  metaGet: wrap('metaGet'),
+  metaSet: wrap('metaSet')
 };

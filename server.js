@@ -13,6 +13,8 @@ const { prever } = require('./src/ia/valorizacao');
 const { comparar } = require('./src/comparar');
 const { gerarLegenda } = require('./src/ia/legenda');
 const { alertasOportunidade } = require('./src/alertas');
+const { gerarFeedXml, contentType: feedContentType } = require('./src/feed/xml');
+const { normalizarLead } = require('./src/leads');
 
 const STATUS_VALIDOS = ['novo', 'analisado', 'visitado', 'proposta', 'fechado', 'descartado'];
 
@@ -124,6 +126,22 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'POST' && path === '/api/monitor/run') {
     return send(res, 200, await runMonitor(store, fetchTextoAnuncio));
+  }
+
+  if (req.method === 'GET' && path === '/feed/xml') {
+    const todas = await store.listAnalises({});
+    const validas = todas.filter((a) => a.status !== 'descartado' && a.extracao && a.extracao.preco);
+    return send(res, 200, gerarFeedXml(validas), feedContentType);
+  }
+  if (req.method === 'POST' && path.startsWith('/webhook/leads/')) {
+    const portal = path.slice('/webhook/leads/'.length).split('/')[0].trim().toLowerCase();
+    const PORTAIS_VALIDOS = ['dfimoveis', 'wimoveis', 'netimoveis', 'zap', 'vivareal', 'olx'];
+    if (!PORTAIS_VALIDOS.includes(portal)) return send(res, 400, { error: 'portal inválido: ' + PORTAIS_VALIDOS.join(',') });
+    const payload = await readJson(req);
+    const reg = normalizarLead(portal, payload);
+    if (reg.error) return send(res, 400, { error: reg.error });
+    const saved = await store.addAnalise(reg);
+    return send(res, 200, { ok: true, id: saved.id });
   }
 
   send(res, 404, { error: 'rota não encontrada' });

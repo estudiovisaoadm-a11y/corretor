@@ -211,3 +211,33 @@ Pendente V3: Postgres, monitoramento automático diário (cron), mapa de calor, 
 - [x] Mapa de calor: `GET /api/mapa` (bairro + média + lat/lng) + Leaflet no painel com fallback em tabela
 - [x] Previsão de valorização 12m: `GET /api/valorizacao?id=` (score + tendência dos snapshots + risco documental, com aviso de estimativa)
 - [x] Painel: seções Monitor, Mapa e botão de previsão na área de legenda; `.env.example` com `DATABASE_URL`
+
+## 14. Evolução via APIs Oficiais (pesquisa 03/09/2026)
+
+Verificação honesta da premissa "todas as fontes têm API": **existe superfície oficial nas 3, mas com direções e acessos diferentes**. Nenhuma oferece leitura livre de todo o mercado — o modelo é B2B (anunciante/integrador credenciado). Estratégia correta: 3 camadas.
+
+### 14.1. DFImóveis — sem API pública de leitura
+- O que existe: página de parceiros com CRMs integrados (TimiPro, inGaia, Vista, TecImob, Imobzi, AlterData...) e fluxo documentado onde o CRM gera **URL de integração** e envia para `suporte@dfimoveis.com.br` (direção CRM → portal, para **publicar**).
+- Ou seja: dá para virar **publicador oficial** (nosso estoque → DFImóveis), mas leitura de mercado continua via fetch + JSON-LD + parsers (já implementado em `src/integracoes/`).
+- Contato comercial: `suporte@dfimoveis.com.br` informando responsável + CPF/CNPJ; aprovação em lista de espera.
+
+### 14.2. WImóveis/Navent (QuintoAndar) — OpenNavent API real
+- Docs vivas em `http://api-br.open.navent.com/` (OpenNavent API RealEstate) + SDK de referência em PHP (`mrprompt/imovelweb-sdk`, token + `production|sandbox`).
+- Painel do anunciante aceita **integração de anúncios via XML ou API** ("Desenvolvedor Próprio") e **integração de leads** (callbacks para o CRM).
+- Caminho: solicitar credencial de integrador (exige plano/código de anunciante); usar para dados oficiais do próprio portfólio + recebimento de leads em tempo real.
+
+### 14.3. NetImóveis — WCF read API real
+- Swagger vivo em `https://wcfservices.netimoveis.com/docs/` com operações de leitura (`Imovel_Get...`, filtros por estado/cidade, paginação `quantidadeRegistro` 4–50). É a **melhor candidata a leitura oficial**.
+- Caminho: solicitar acesso/parceria e mapear `Imovel_Get` → nosso normalizador (mesmo formato da ficha/score, zero mudança no resto).
+
+### 14.4. Arquitetura-alvo (3 camadas)
+1. **Leitura de mercado (mantém):** fetch + JSON-LD + parsers por portal — cobre 100% dos anúncios visíveis, sem credencial.
+2. **Conectores oficiais (novo `src/integracoes/api/`):** clientes `netimoveis-wcf.js` e `navent-open.js` com slots de credencial via env (`NETIMOVEIS_API_*`, `NAVENT_TOKEN`), reaproveitando `analisar()`/`calcScore()` — dado oficial entra pelo mesmo funil de score.
+3. **Distribuição (inversão do fluxo):** nosso CRM vira fonte — feed XML OUT padrão portais (formato OpenNavent/VRSync servido em `/feed/xml`) para publicar estoque como "Desenvolvedor Próprio" + webhook IN de leads (`POST /webhook/leads/:portal`) caindo direto no funil com origem marcada (fecha o ROI por portal).
+
+### 14.5. Roadmap V4 proposto
+- [x] V4.1: `GET /feed/xml` (estoque com status ≠ descartado no formato portal) + `POST /webhook/leads/:portal` → funil (testado: feed 200 com 4 imóveis, lead cria `novo` no funil, 400 em payload inválido).
+- [x] V4.2: conector NetImóveis WCF (`src/integracoes/api/netimoveis-wcf.js`, endpoint real `GET /api/imovel/lista`, teste mock: 76 BOM / 39 DESCARTAR; live sem chave retorna 401 + `{error}` gracioso). Falta: `NETIMOVEIS_API_KEY` da Rede NetImóveis.
+- [x] V4.3: conector Navent Open (`src/integracoes/api/navent-open.js`, Bearer + sandbox/production + detalhar, teste mock: 65 BOM / 53 REGULAR; sem token retorna `{error}`). Falta: `NAVENT_TOKEN` (client_credentials) + `NAVENT_IMOBILIARIA` + callback de leads.
+- [x] V4.4: dossiê comercial DFImóveis (`docs/proposta-dfimoveis.md`, e-mail pronto p/ `suporte@dfimoveis.com.br`). Falta: preencher placeholders + conta anunciante + piloto 2–5 imóveis.
+- Pré-requisitos comerciais (fora do código): plano de anunciante com código válido em cada portal; sem isso, camada 1 já entrega todo o valor de análise.

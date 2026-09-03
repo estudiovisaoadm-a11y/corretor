@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="styles.css">
 </head><body>
 <header class="hero"><div class="hero-inner">
-<div class="hero-top"><div class="brand"><span class="brand-mark">⌂</span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
+<div class="hero-top"><div class="brand"><span class="brand-mark"><img src="https://cdn-icons-png.flaticon.com/512/6793/6793457.png" alt="home" class="fi" width="20" height="20"></span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
 <div class="hero-grid"><div class="hero-copy">
 <h1 class="hero-title">Encontre o imóvel ideal com inteligência</h1>
 <p class="hero-sub">Cole o link do anúncio e receba score 0–100, preço por m², leitura de bairro, financiamento e documentação — tudo em um painel.</p>
@@ -24,11 +24,11 @@
       <h3>Filtros + Histórico</h3>
       <p class="card-sub">Busque por palavra-chave, filtre por portal e compare imóveis analisados.</p>
     </div>
-    <button class="btn-ghost btn-sm" onclick="compararSel()">⚖️ Comparar selecionados (2-3)</button>
+    <button class="btn-ghost btn-sm" onclick="compararSel()"><img src="https://cdn-icons-png.flaticon.com/512/71/71016.png" alt="balance scale" class="fi" width="20" height="20"> Comparar selecionados (2-3)</button>
   </div>
   <div class="filters">
     <div class="search-input-wrap">
-      <span class="input-icon">🔍</span>
+      <span class="input-icon"><img src="https://cdn-icons-png.flaticon.com/512/149/149852.png" alt="search" class="fi" width="20" height="20"></span>
       <input id="q" placeholder="buscar imóvel, bairro, valor..." oninput="carregar()">
     </div>
     <select id="fFonte" onchange="carregar()">
@@ -56,7 +56,7 @@
 <section class="card">
   <div class="subcard">
     <div class="subcard-header">
-      <h4>⚖️ Comparador lado a lado</h4>
+      <h4><img src="https://cdn-icons-png.flaticon.com/512/71/71016.png" alt="balance scale" class="fi" width="20" height="20"> Comparador lado a lado</h4>
       <span class="badge-sub">2 a 3 imóveis</span>
     </div>
     <div id="comp" class="subcard-body subcard-empty">Selecione 2-3 no histórico ao lado para comparar.</div>
@@ -64,7 +64,7 @@
 
   <div class="subcard">
     <div class="subcard-header">
-      <h4>📊 Funil CRM</h4>
+      <h4><img src="https://cdn-icons-png.flaticon.com/512/1041/1041916.png" alt="bar chart" class="fi" width="20" height="20"> Funil CRM</h4>
       <span class="badge-sub">pipeline</span>
     </div>
     <div id="funil" class="funil-grid"></div>
@@ -72,7 +72,7 @@
 
   <div class="subcard">
     <div class="subcard-header">
-      <h4>📍 Média m² por bairro</h4>
+      <h4><img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="location pin" class="fi" width="20" height="20"> Média m² por bairro</h4>
       <span class="badge-sub">base local</span>
     </div>
     <div id="medias" class="subcard-body"></div>
@@ -80,7 +80,7 @@
 
   <div class="subcard">
     <div class="subcard-header">
-      <h4>⚡ Alertas — abaixo da média</h4>
+      <h4><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="lightning bolt" class="fi" width="20" height="20"> Alertas — abaixo da média</h4>
       <span class="badge-sub">oportunidades</span>
     </div>
     <div id="alertas" class="subcard-body"></div>
@@ -91,14 +91,14 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>💬 Legenda & Previsão p/ Cliente</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/1819/1819611.png" alt="chat bubble" class="fi" width="20" height="20"> Legenda & Previsão p/ Cliente</h3>
       <p class="card-sub">Gere textos persuasivos com emojis e hashtags para WhatsApp/Instagram ou calcule a projeção de valorização em 12 meses.</p>
     </div>
   </div>
   <div class="form-row">
     <input id="legId" class="flex-grow" placeholder="Cole o ID da análise aqui (ex: analise-1234)">
-    <button class="btn-primary" onclick="legenda()">📝 Gerar legenda</button>
-    <button class="btn-ghost" onclick="valorizacao()">📈 Previsão valorização</button>
+    <button class="btn-primary" onclick="legenda()"><img src="https://cdn-icons-png.flaticon.com/512/3176/3176296.png" alt="edit pencil" class="fi" width="20" height="20"> Gerar legenda</button>
+    <button class="btn-ghost" onclick="valorizacao()"><img src="https://cdn-icons-png.flaticon.com/512/3281/3281296.png" alt="trending up" class="fi" width="20" height="20"> Previsão valorização</button>
   </div>
   <div id="leg"></div>
 </section>
@@ -106,10 +106,10 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>👁️ Monitor diário (watchlist)</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/3128/3128650.png" alt="eye" class="fi" width="20" height="20"> Monitor diário (watchlist)</h3>
       <p class="card-sub">Varredura contínua nas buscas salvas com detecção de novas ofertas, deduplicação e alertas automáticos.</p>
     </div>
-    <button class="btn-ghost btn-sm" onclick="mRun()" id="btnMRun">⚡ Rodar agora</button>
+    <button class="btn-ghost btn-sm" onclick="mRun()" id="btnMRun"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="lightning bolt" class="fi" width="20" height="20"> Rodar agora</button>
   </div>
   <div class="form-row">
     <input id="wUrl" class="flex-grow" placeholder="https://... busca salva (DFImóveis, WImóveis ou NetImóveis)">
@@ -122,7 +122,7 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>🗺️ Mapa de calor — R$/m² por bairro</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="world map" class="fi" width="20" height="20"> Mapa de calor — R$/m² por bairro</h3>
       <p class="card-sub">Distribuição geoespacial dos valores médios do m² e tabela comparativa dos bairros do DF.</p>
     </div>
   </div>
@@ -138,7 +138,7 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>👥 Atendimento — equipe, fila e match</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/7097/7097798.png" alt="users people" class="fi" width="20" height="20"> Atendimento — equipe, fila e match</h3>
       <p class="card-sub">Gestão de corretores por rodízio, controle de SLA e match inteligente de leads com imóveis.</p>
     </div>
   </div>
@@ -187,7 +187,7 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>📈 Gestão — métricas do time</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/3281/3281296.png" alt="trending up" class="fi" width="20" height="20"> Gestão — métricas do time</h3>
       <p class="card-sub">Desempenho geral, taxas de conversão e tempos médios de atendimento.</p>
     </div>
     <button class="btn-ghost btn-sm" onclick="gestorCarregar()">Atualizar métricas</button>
@@ -198,7 +198,7 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>⚡ Follow-up — sequências automáticas</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="lightning bolt" class="fi" width="20" height="20"> Follow-up — sequências automáticas</h3>
       <p class="card-sub">Acompanhamento e tarefas programadas de cadência com clientes.</p>
     </div>
   </div>
@@ -214,7 +214,7 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>📄 Proposta digital</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/2797/2797818.png" alt="document" class="fi" width="20" height="20"> Proposta digital</h3>
       <p class="card-sub">Formalização de propostas comerciais de compra/venda com checagens jurídicas.</p>
     </div>
   </div>
@@ -228,14 +228,14 @@
 <section class="card">
   <div class="card-header">
     <div>
-      <h3>🔄 Reativação — leads frios</h3>
+      <h3><img src="https://cdn-icons-png.flaticon.com/512/4866/4866019.png" alt="refresh sync" class="fi" width="20" height="20"> Reativação — leads frios</h3>
       <p class="card-sub">Identificação automática de leads inativos com fit para novas análises cadastradas.</p>
     </div>
     <button class="btn-ghost btn-sm" onclick="reatCarregar()">Buscar candidatos</button>
   </div>
   <div id="reat"></div>
 </section>
-<section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico">✓</span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico">⌂</span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
+<section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico"><img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="checkmark" class="fi" width="20" height="20"></span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico"><img src="https://cdn-icons-png.flaticon.com/512/6793/6793457.png" alt="home" class="fi" width="20" height="20"></span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
 </main>
 <script>
 // API_BASE: ?api= na URL (salva) > localStorage > mesma origem. Permite hospedar este HTML em PHP/HTML estático.

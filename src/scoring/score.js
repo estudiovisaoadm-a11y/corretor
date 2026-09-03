@@ -2,8 +2,12 @@
 // Score = (Preço/m² 30%) + (Localização 25%) + (Documentação 25%) + (Financiamento 10%) + (Permuta 10%)
 
 function notaPrecoM2(precoM2, mediaBairro) {
-  if (!precoM2 || !mediaBairro) return { nota: 5, motivo: 'sem base de m² para comparar' };
-  const diff = (precoM2 - mediaBairro) / mediaBairro; // negativo = mais barato = melhor
+  const pM2 = Number(precoM2);
+  const mB = Number(mediaBairro);
+  if (!pM2 || !mB || Number.isNaN(pM2) || Number.isNaN(mB) || mB <= 0 || pM2 <= 0) {
+    return { nota: 5, motivo: 'sem base de m² para comparar' };
+  }
+  const diff = (pM2 - mB) / mB; // negativo = mais barato = melhor
   if (diff <= -0.15) return { nota: 10, motivo: `${pct(diff)} abaixo da média — oportunidade` };
   if (diff <= -0.05) return { nota: 8, motivo: `${pct(diff)} abaixo da média` };
   if (diff <= 0.05) return { nota: 6, motivo: 'na média do bairro' };
@@ -15,7 +19,7 @@ function pct(diff) {
   return `${Math.abs(Math.round(diff * 100))}%`;
 }
 
-function notaDocumentacao(extracao, seloImovelSeguro) {
+function notaDocumentacao(extracao = {}, seloImovelSeguro = false) {
   if (seloImovelSeguro) return { nota: 10, motivo: 'selo Imóvel Seguro (DFImóveis) — certidões verificadas' };
   let nota = 5;
   const motivos = [];
@@ -29,7 +33,15 @@ function notaDocumentacao(extracao, seloImovelSeguro) {
   return { nota: Math.min(nota, 10), motivo: motivos.join('; ') || 'sem dados' };
 }
 
-function calcScore({ precoM2, mediaBairro, localizacaoNota = 6, extracao = {}, seloImovelSeguro = false, oportunidadeSinal = false }) {
+function calcScore(params = {}) {
+  const {
+    precoM2,
+    mediaBairro,
+    localizacaoNota = 6,
+    extracao = {},
+    seloImovelSeguro = false,
+    oportunidadeSinal = false
+  } = params || {};
   const p = notaPrecoM2(precoM2, mediaBairro);
   let pNota = p.nota;
   if (oportunidadeSinal) pNota = Math.min(10, pNota + 1); // queda de preço detectada (WImóveis)
@@ -38,7 +50,8 @@ function calcScore({ precoM2, mediaBairro, localizacaoNota = 6, extracao = {}, s
   const finNota = extracao.aceita_financiamento === true ? 9 : extracao.aceita_financiamento === false ? 2 : 5;
   const permNota = extracao.aceita_permuta === true ? 9 : extracao.aceita_permuta === false ? 4 : 5;
 
-  const score = Math.round(pNota * 3 + localizacaoNota * 2.5 + d.nota * 2.5 + finNota * 1 + permNota * 1);
+  const locNota = typeof localizacaoNota === 'number' && !Number.isNaN(localizacaoNota) ? localizacaoNota : 6;
+  const score = Math.max(0, Math.min(100, Math.round(pNota * 3 + locNota * 2.5 + d.nota * 2.5 + finNota * 1 + permNota * 1)));
   // pesos: 30 + 25 + 25 + 10 + 10 = /10 → score 0-100
 
   let veredito = 'DESCARTAR / ALTO RISCO';

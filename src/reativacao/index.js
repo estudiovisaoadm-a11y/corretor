@@ -7,14 +7,21 @@ const CANDIDATOS_CONFIG = {
   fitMinimo: 30,
 };
 
+function getDataCriacaoMs(lead) {
+  const data = lead?.createdAt || lead?.criadoEm || lead?.lead?.createdAt || lead?.lead?.criadoEm;
+  return data ? new Date(data).getTime() : NaN;
+}
+
 function classificarLead(lead, agoraMs) {
-  const criadoEmMs = new Date(lead.criadoEm).getTime();
-  const diffMs = agoraMs - criadoEmMs;
+  const criadoEmMs = getDataCriacaoMs(lead);
+  const diffMs = Number.isNaN(criadoEmMs) ? 0 : agoraMs - criadoEmMs;
   const diffHoras = diffMs / (1000 * 60 * 60);
   const diffDias = diffHoras / 24;
 
   let faixa;
-  if (diffHoras < 1) {
+  if (Number.isNaN(criadoEmMs)) {
+    faixa = 'NOVO';
+  } else if (diffHoras < 1) {
     faixa = 'NOVO';
   } else if (diffHoras < 24) {
     faixa = 'QUENTE';
@@ -37,13 +44,17 @@ function calcularFit(lead, imovel) {
   let pontos = 0;
   const motivos = [];
 
-  if (lead.bairro && imovel.bairro && lead.bairro === imovel.bairro) {
+  const lBairro = lead?.bairro || lead?.lead?.bairro;
+  const iBairro = imovel?.bairro;
+  if (lBairro && iBairro && String(lBairro).toLowerCase() === String(iBairro).toLowerCase()) {
     pontos += 30;
     motivos.push('mesmo bairro');
   }
 
-  if (lead.budget && imovel.preco) {
-    const diffPercentual = Math.abs(lead.budget - imovel.preco) / lead.budget;
+  const lBudget = lead?.budget || lead?.lead?.budget;
+  const iPreco = imovel?.preco || imovel?.extracao?.preco;
+  if (lBudget && iPreco) {
+    const diffPercentual = Math.abs(lBudget - iPreco) / lBudget;
     if (diffPercentual <= 0.10) {
       pontos += 25;
       motivos.push('preço dentro do orçamento');
@@ -53,26 +64,32 @@ function calcularFit(lead, imovel) {
     }
   }
 
-  if (lead.aceita_financiamento === imovel.aceita_financiamento && lead.aceita_financiamento) {
+  const lFinanc = lead?.aceita_financiamento ?? lead?.lead?.aceita_financiamento;
+  const iFinanc = imovel?.aceita_financiamento ?? imovel?.extracao?.aceita_financiamento;
+  if (lFinanc === iFinanc && Boolean(lFinanc)) {
     pontos += 15;
     motivos.push('aceita financiamento');
   }
 
-  if (imovel.tem_escritura) {
+  const iEscritura = imovel?.tem_escritura ?? imovel?.extracao?.tem_escritura;
+  if (iEscritura) {
     pontos += 10;
     motivos.push('com escritura');
   }
 
-  if (imovel.tem_habite_se) {
+  const iHabiteSe = imovel?.tem_habite_se ?? imovel?.extracao?.tem_habite_se;
+  if (iHabiteSe) {
     pontos += 10;
     motivos.push('com habite-se');
   }
 
-  if (lead.telefone) {
+  const lTel = lead?.telefone || lead?.lead?.telefone;
+  if (lTel) {
     pontos += 5;
   }
 
-  if (lead.email) {
+  const lEmail = lead?.email || lead?.lead?.email;
+  if (lEmail) {
     pontos += 5;
   }
 
@@ -97,7 +114,8 @@ function candidatosReativacao(leads, imoveis, config) {
   const filtrados = leads.filter((lead) => {
     const classificacao = classificarLead(lead, agoraMs);
     const diasMinimosMs = cfg.diasMinimos * 24 * 60 * 60 * 1000;
-    const criadoEmMs = new Date(lead.criadoEm).getTime();
+    const criadoEmMs = getDataCriacaoMs(lead);
+    if (Number.isNaN(criadoEmMs)) return false;
     const idadeMs = agoraMs - criadoEmMs;
 
     if (idadeMs < diasMinimosMs) return false;
@@ -155,8 +173,10 @@ function gerarMensagemReativacao(candidato) {
   const agoraMs = Date.now();
   const classificacao = classificarLead(lead, agoraMs);
   const dias = Math.floor(classificacao.diasDesdeCriacao);
+  const nome = lead?.nome || lead?.lead?.nome || 'Cliente';
+  const bairro = imovel?.bairro || 'sua região de interesse';
 
-  return `Olá ${lead.nome}! Faz ${dias} dias que analisamos o imóvel em ${imovel.bairro}. Encontrei uma opção parecida com ${motivos}. Quer que eu envie a ficha?`;
+  return `Olá ${nome}! Faz ${dias} dias que analisamos o imóvel em ${bairro}. Encontrei uma opção parecida com ${motivos}. Quer que eu envie a ficha?`;
 }
 
 function filtrarPorTemperatura(leads, faixa) {

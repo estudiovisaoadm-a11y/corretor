@@ -18,36 +18,223 @@
 <textarea id="texto" class="w-full" rows="3" placeholder="Ou cole o texto: Ap 70m2 R$ 550 mil, aceita financiamento, escritura e habite-se ok"></textarea><br><br>
 <button id="btnAnalisar" onclick="analisar()">Analisar e salvar</button> <span id="nova"></span></section>
 <div class="grid">
-<section class="card"><h3>Filtros + Histórico</h3>
-<div class="filters"><input id="q" placeholder="buscar..." oninput="carregar()">
-<select id="fFonte" onchange="carregar()"><option value="">todas fontes</option><option>dfimoveis</option><option>wimoveis</option><option>netimoveis</option><option>manual</option></select>
-<select id="fStatus" onchange="carregar()"><option value="">todos status</option><option>novo</option><option>analisado</option><option>visitado</option><option>proposta</option><option>fechado</option><option>descartado</option></select>
-<label><input type="checkbox" id="fFin" onchange="carregar()"> financiáveis</label>
-<label><input type="checkbox" id="fDoc" onchange="carregar()"> com escritura</label></div>
-<button onclick="compararSel()">Comparar selecionados (2-3)</button><br><br>
-<div id="hist"></div></section>
-<section class="card"><h3>Comparador</h3><div id="comp">Selecione 2-3 no histórico.</div>
-<h3>Funil CRM</h3><div id="funil"></div>
-<h3>Média m² por bairro (base local)</h3><div id="medias"></div>
-<h3>Alertas — abaixo da média</h3><div id="alertas"></div></section>
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>Filtros + Histórico</h3>
+      <p class="card-sub">Busque por palavra-chave, filtre por portal e compare imóveis analisados.</p>
+    </div>
+    <button class="btn-ghost btn-sm" onclick="compararSel()">⚖️ Comparar selecionados (2-3)</button>
+  </div>
+  <div class="filters">
+    <div class="search-input-wrap">
+      <span class="input-icon">🔍</span>
+      <input id="q" placeholder="buscar imóvel, bairro, valor..." oninput="carregar()">
+    </div>
+    <select id="fFonte" onchange="carregar()">
+      <option value="">Todas as fontes</option>
+      <option value="dfimoveis">DFImóveis</option>
+      <option value="wimoveis">WImóveis</option>
+      <option value="netimoveis">NetImóveis</option>
+      <option value="manual">Manual</option>
+    </select>
+    <select id="fStatus" onchange="carregar()">
+      <option value="">Todos os status</option>
+      <option value="novo">Novo</option>
+      <option value="analisado">Analisado</option>
+      <option value="visitado">Visitado</option>
+      <option value="proposta">Proposta</option>
+      <option value="fechado">Fechado</option>
+      <option value="descartado">Descartado</option>
+    </select>
+    <label class="filter-check"><input type="checkbox" id="fFin" onchange="carregar()"> <span>Financiáveis</span></label>
+    <label class="filter-check"><input type="checkbox" id="fDoc" onchange="carregar()"> <span>Com escritura</span></label>
+  </div>
+  <div id="hist"></div>
+</section>
+
+<section class="card">
+  <div class="subcard">
+    <div class="subcard-header">
+      <h4>⚖️ Comparador lado a lado</h4>
+      <span class="badge-sub">2 a 3 imóveis</span>
+    </div>
+    <div id="comp" class="subcard-body subcard-empty">Selecione 2-3 no histórico ao lado para comparar.</div>
+  </div>
+
+  <div class="subcard">
+    <div class="subcard-header">
+      <h4>📊 Funil CRM</h4>
+      <span class="badge-sub">pipeline</span>
+    </div>
+    <div id="funil" class="funil-grid"></div>
+  </div>
+
+  <div class="subcard">
+    <div class="subcard-header">
+      <h4>📍 Média m² por bairro</h4>
+      <span class="badge-sub">base local</span>
+    </div>
+    <div id="medias" class="subcard-body"></div>
+  </div>
+
+  <div class="subcard">
+    <div class="subcard-header">
+      <h4>⚡ Alertas — abaixo da média</h4>
+      <span class="badge-sub">oportunidades</span>
+    </div>
+    <div id="alertas" class="subcard-body"></div>
+  </div>
+</section>
 </div>
-<section class="card"><h3>Legenda p/ cliente</h3><input id="legId" placeholder="id da análise" style="width:300px"> <button onclick="legenda()">Gerar legenda</button> <button onclick="valorizacao()">Previsão valorização</button><div id="leg"></div></section>
-<section class="card"><h3>Monitor diário (watchlist)</h3>
-<input id="wUrl" class="w-55" placeholder="https://... busca salva"> <input id="wRot" class="w-25" placeholder="rótulo"> <button onclick="wAdd()">Adicionar</button> <button onclick="mRun()">Rodar agora</button><div id="mon"></div></section>
-<section class="card"><h3>Mapa de calor — R$/m² por bairro</h3><div id="map"></div><div class="map-legend"><span><i style="background:#15803d"></i>até 8k</span><span><i style="background:var(--score-regular)"></i>8k–10k</span><span><i style="background:#b91c1c"></i>acima de 10k</span></div><div id="mapTab"></div></section>
-<section class="card"><h3>Atendimento — equipe, fila e match</h3><div class="grid">
-<div><h4>Equipe (rodízio automático)</h4>
-<input id="eqNome" class="w-55" placeholder="Nome do corretor"> <input id="eqZap" class="w-25" placeholder="WhatsApp ex: 5561999999999"> <button onclick="eqAdd()">Adicionar</button><div id="eq"></div>
-<h4>SLA</h4><div id="sla"></div></div>
-<div><h4>Fila — ligar primeiro</h4><button onclick="filaCarregar()">Atualizar fila</button><div id="fila"></div>
-<h4>Match lead × imóvel</h4><input id="matchId" placeholder="id do lead" style="width:300px"> <button onclick="matchVer()">Ver matches</button><div id="match"></div></div>
-</div></section>
-<section class="card"><h3>Gestão — métricas do time</h3><button onclick="gestorCarregar()">Atualizar métricas</button><div id="gestor"></div></section>
-<section class="card"><h3>Follow-up — sequências automáticas</h3>
-<input id="fuId" placeholder="id do lead" style="width:300px"> <button onclick="fuIniciar()">Iniciar sequência</button> <button onclick="fuVer()">Ver tarefas</button> <button onclick="fuAvancar()">Avançar step</button><div id="fu"></div></section>
-<section class="card"><h3>Proposta digital</h3>
-<input id="propId" placeholder="id da análise" style="width:300px"> <button onclick="propGerar()">Gerar proposta</button><div id="prop"></div></section>
-<section class="card"><h3>Reativação — leads frios</h3><button onclick="reatCarregar()">Buscar candidatos</button><div id="reat"></div></section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>💬 Legenda & Previsão p/ Cliente</h3>
+      <p class="card-sub">Gere textos persuasivos com emojis e hashtags para WhatsApp/Instagram ou calcule a projeção de valorização em 12 meses.</p>
+    </div>
+  </div>
+  <div class="form-row">
+    <input id="legId" class="flex-grow" placeholder="Cole o ID da análise aqui (ex: analise-1234)">
+    <button class="btn-primary" onclick="legenda()">📝 Gerar legenda</button>
+    <button class="btn-ghost" onclick="valorizacao()">📈 Previsão valorização</button>
+  </div>
+  <div id="leg"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>👁️ Monitor diário (watchlist)</h3>
+      <p class="card-sub">Varredura contínua nas buscas salvas com detecção de novas ofertas, deduplicação e alertas automáticos.</p>
+    </div>
+    <button class="btn-ghost btn-sm" onclick="mRun()" id="btnMRun">⚡ Rodar agora</button>
+  </div>
+  <div class="form-row">
+    <input id="wUrl" class="flex-grow" placeholder="https://... busca salva (DFImóveis, WImóveis ou NetImóveis)">
+    <input id="wRot" class="w-rotulo" placeholder="Rótulo (ex: Águas Claras 2Q)">
+    <button class="btn-primary" onclick="wAdd()">+ Adicionar</button>
+  </div>
+  <div id="mon" class="watchlist-container"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>🗺️ Mapa de calor — R$/m² por bairro</h3>
+      <p class="card-sub">Distribuição geoespacial dos valores médios do m² e tabela comparativa dos bairros do DF.</p>
+    </div>
+  </div>
+  <div id="map"></div>
+  <div class="map-legend">
+    <span class="legend-item"><i style="background:#15803d"></i> até 8k (Oportunidade)</span>
+    <span class="legend-item"><i style="background:var(--score-regular)"></i> 8k–10k (Média DF)</span>
+    <span class="legend-item"><i style="background:#b91c1c"></i> acima de 10k (Alto Padrão)</span>
+  </div>
+  <div id="mapTab"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>👥 Atendimento — equipe, fila e match</h3>
+      <p class="card-sub">Gestão de corretores por rodízio, controle de SLA e match inteligente de leads com imóveis.</p>
+    </div>
+  </div>
+  <div class="grid">
+    <div>
+      <div class="subcard">
+        <div class="subcard-header">
+          <h4>Equipe (rodízio automático)</h4>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input id="eqNome" class="flex-grow" placeholder="Nome do corretor">
+          <input id="eqZap" class="w-rotulo" placeholder="WhatsApp (ex: 5561999999999)">
+          <button class="btn-primary btn-sm" onclick="eqAdd()">+ Adicionar</button>
+        </div>
+        <div id="eq"></div>
+      </div>
+      <div class="subcard">
+        <div class="subcard-header">
+          <h4>Controle de SLA</h4>
+        </div>
+        <div id="sla" class="subcard-body"></div>
+      </div>
+    </div>
+    <div>
+      <div class="subcard">
+        <div class="subcard-header">
+          <h4>Fila — ligar primeiro</h4>
+          <button class="btn-ghost btn-sm" onclick="filaCarregar()">Atualizar fila</button>
+        </div>
+        <div id="fila"></div>
+      </div>
+      <div class="subcard">
+        <div class="subcard-header">
+          <h4>Match lead × imóvel</h4>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input id="matchId" class="flex-grow" placeholder="ID do lead">
+          <button class="btn-primary btn-sm" onclick="matchVer()">Ver matches</button>
+        </div>
+        <div id="match"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>📈 Gestão — métricas do time</h3>
+      <p class="card-sub">Desempenho geral, taxas de conversão e tempos médios de atendimento.</p>
+    </div>
+    <button class="btn-ghost btn-sm" onclick="gestorCarregar()">Atualizar métricas</button>
+  </div>
+  <div id="gestor"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>⚡ Follow-up — sequências automáticas</h3>
+      <p class="card-sub">Acompanhamento e tarefas programadas de cadência com clientes.</p>
+    </div>
+  </div>
+  <div class="form-row">
+    <input id="fuId" class="flex-grow" placeholder="ID do lead">
+    <button class="btn-primary btn-sm" onclick="fuIniciar()">Iniciar sequência</button>
+    <button class="btn-ghost btn-sm" onclick="fuVer()">Ver tarefas</button>
+    <button class="btn-ghost btn-sm" onclick="fuAvancar()">Avançar step</button>
+  </div>
+  <div id="fu"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>📄 Proposta digital</h3>
+      <p class="card-sub">Formalização de propostas comerciais de compra/venda com checagens jurídicas.</p>
+    </div>
+  </div>
+  <div class="form-row">
+    <input id="propId" class="flex-grow" placeholder="ID da análise">
+    <button class="btn-primary btn-sm" onclick="propGerar()">Gerar proposta</button>
+  </div>
+  <div id="prop"></div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h3>🔄 Reativação — leads frios</h3>
+      <p class="card-sub">Identificação automática de leads inativos com fit para novas análises cadastradas.</p>
+    </div>
+    <button class="btn-ghost btn-sm" onclick="reatCarregar()">Buscar candidatos</button>
+  </div>
+  <div id="reat"></div>
+</section>
 <section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico">✓</span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico">⌂</span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
 </main>
 <script>
@@ -57,66 +244,274 @@ if(new URLSearchParams(location.search).get('api'))localStorage.setItem('correto
 function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');localStorage.setItem('corretor_api',v);location.reload();}
 document.getElementById('apiBase').value=API_BASE;
 function api(p){return API_BASE+p;}
+function escapeHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function faixaCls(s){return s>=80?'score-otimo':s>=60?'score-bom':s>=40?'score-regular':'score-risco';}
 function curta(v){v=v||'';if(v.indexOf('ÓTIMA')===0)return'Ótima';if(v.indexOf('BOM')===0)return'Bom';if(v.indexOf('REGULAR')===0)return'Regular';return'Risco';}
 function badge(s,v){return '<span class="score-badge '+faixaCls(s)+'">'+s+' <small>'+curta(v)+'</small></span>';}
+function copiarTexto(id, btn){
+  var el=document.getElementById(id);
+  if(!el)return;
+  var txt=el.value!==undefined?el.value:el.innerText;
+  navigator.clipboard.writeText(txt).then(function(){
+    var old=btn.innerHTML;
+    btn.innerHTML='<span>✓ Copiado!</span>';
+    btn.classList.add('btn-copied');
+    setTimeout(function(){btn.innerHTML=old;btn.classList.remove('btn-copied');},2000);
+  }).catch(function(){
+    if(el.select)el.select();
+    document.execCommand('copy');
+    var old=btn.innerHTML;
+    btn.innerHTML='<span>✓ Copiado!</span>';
+    setTimeout(function(){btn.innerHTML=old;},2000);
+  });
+}
+
 async function analisar(){
  const btn=document.getElementById('btnAnalisar');
- btn.disabled=true;document.getElementById('nova').innerHTML='<div class="skeleton">Analisando...</div>';
+ btn.disabled=true;document.getElementById('nova').innerHTML='<div class="skeleton">Analisando imóvel e verificando documentação...</div>';
  try{
  const url=document.getElementById('url').value, texto=document.getElementById('texto').value;
  const r=await fetch(api('/api/analisar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,texto})}).then(r=>r.json());
- var extra=badge(r.score,r.veredito)+' <b>'+r.veredito+'</b>';
+ var extra=badge(r.score,r.veredito)+' <b>'+escapeHtml(r.veredito)+'</b>';
  if(r.parsed&&r.parsed.selos&&r.parsed.selos.imovelSeguro)extra+=' <span class="seal">Imóvel Seguro</span>';
- if(r.extracao&&r.extracao.precisa_confirmar&&r.extracao.precisa_confirmar.length)extra+='<div class="alert-doc">Confirmar: '+r.extracao.precisa_confirmar.join(', ')+'</div>';
-  document.getElementById('nova').innerHTML=extra+'<pre class="ficha">'+r.ficha+'</pre>';
+ if(r.extracao&&r.extracao.precisa_confirmar&&r.extracao.precisa_confirmar.length)extra+='<div class="alert-doc">Confirmar: '+escapeHtml(r.extracao.precisa_confirmar.join(', '))+'</div>';
+  document.getElementById('nova').innerHTML=extra+'<pre class="ficha">'+escapeHtml(r.ficha)+'</pre>';
   carregar();
-  }catch(e){document.getElementById('nova').innerHTML='<div class="alert-doc crit">Falha ao analisar: '+((e&&e.message)?e.message:e)+'</div>';}
+  }catch(e){document.getElementById('nova').innerHTML='<div class="alert-doc crit">Falha ao analisar: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
   finally{btn.disabled=false;}
 }
+
 async function carregar(){
  try{
   const p=new URLSearchParams({q:q.value,fonte:fFonte.value,status:fStatus.value,financiavel:fFin.checked?1:'',comEscritura:fDoc.checked?1:''});
   const h=await fetch(api('/api/historico?'+p)).then(r=>r.json());
   total.textContent=h.length+' análises';
-  if(!h.length){hist.innerHTML='Nenhuma análise ainda. Cole um link acima e clique em Analisar.';}
-  else{hist.innerHTML='<div class="table-wrap"><table><tr><th></th><th>Score</th><th>Veredito</th><th>R$/m²</th><th>Bairro</th><th>Status</th><th></th></tr>'+h.map(a=>'<tr><td><input type=checkbox class=sel value='+a.id+'></td><td>'+badge(a.score,a.veredito)+'</td><td>'+a.veredito+'</td><td>'+(a.extracao.preco_m2||'—')+'</td><td>'+(a.bairro||a.fonte)+'</td><td><select onchange="status_(\''+a.id+'\',this.value)">'+['novo','analisado','visitado','proposta','fechado','descartado'].map(s=>'<option '+(a.status===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><button class="btn-ghost" onclick="legenda(\''+a.id+'\')">legenda</button></td></tr>').join('')+'</table></div>';}
+  if(!h.length){
+    hist.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nenhuma análise no histórico</div><div class="empty-desc">Cole o link de um anúncio no topo e clique em Analisar para iniciar seu histórico.</div></div>';
+  } else {
+    hist.innerHTML='<div class="table-wrap"><table><tr><th></th><th>Score</th><th>Veredito</th><th>R$/m²</th><th>Bairro</th><th>Status</th><th></th></tr>'+h.map(a=>'<tr><td><input type=checkbox class=sel value='+a.id+'></td><td>'+badge(a.score,a.veredito)+'</td><td>'+escapeHtml(a.veredito)+'</td><td>'+escapeHtml(a.extracao.preco_m2||'—')+'</td><td>'+escapeHtml(a.bairro||a.fonte)+'</td><td><select onchange="status_(\''+a.id+'\',this.value)">'+['novo','analisado','visitado','proposta','fechado','descartado'].map(s=>'<option '+(a.status===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><button class="btn-ghost btn-sm" onclick="legenda(\''+a.id+'\')">legenda</button></td></tr>').join('')+'</table></div>';
+  }
   const f=await fetch(api('/api/funil')).then(r=>r.json());
-  funil.innerHTML=Object.entries(f).map(([k,v])=>'<span class="pill st-'+k+'">'+k+': '+v+'</span>').join(' ');
+  var FUNIL_LABELS={novo:'Novo',analisado:'Analisado',visitado:'Visitado',proposta:'Proposta',fechado:'Fechado',descartado:'Descartado'};
+  funil.innerHTML=Object.entries(f).map(([k,v])=>'<div class="funil-step st-'+k+'"><span class="funil-count">'+v+'</span><span class="funil-name">'+(FUNIL_LABELS[k]||k)+'</span></div>').join('');
   const m=await fetch(api('/api/medias')).then(r=>r.json());
-  medias.innerHTML=m.length?'<div class="table-wrap"><table>'+m.map(x=>'<tr><td>'+x.bairro+'</td><td>'+x.media+'</td><td>n='+x.qtd+'</td></tr>').join('')+'</table></div>':'Sem dados de média ainda.';
+  medias.innerHTML=m.length?'<div class="table-wrap"><table class="table-mini"><thead><tr><th>Bairro</th><th>Média R$/m²</th><th>Amostras</th></tr></thead><tbody>'+m.map(x=>'<tr><td><strong>'+escapeHtml(x.bairro)+'</strong></td><td><span class="media-val">R$ '+Number(x.media).toLocaleString('pt-BR')+'</span></td><td><span class="sample-badge">'+x.qtd+' imov.</span></td></tr>').join('')+'</tbody></table></div>':'<div class="subcard-empty">Sem dados de média ainda. Calculado automaticamente a cada análise.</div>';
   const al=await fetch(api('/api/alertas')).then(r=>r.json());
-  alertas.innerHTML=al.length?al.map(a=>'<div>• <b>-'+a.desconto+'%</b> '+a.id.slice(-4)+' — '+a.score+'/100 '+(a.bairro||'')+'</div>').join(''):'Nenhum alerta ainda.';
- }catch(e){hist.innerHTML='<div class="alert-doc crit">Falha ao carregar: '+((e&&e.message)?e.message:e)+'</div>';}
+  alertas.innerHTML=al.length?al.map(a=>'<div class="alerta-card"><div class="alerta-header"><span class="desconto-badge">-'+a.desconto+'%</span><strong class="alerta-bairro">'+escapeHtml(a.bairro||'DF')+'</strong></div><div class="alerta-meta"><span class="alerta-id">#'+escapeHtml(a.id.slice(-4))+'</span>'+badge(a.score,a.veredito||(a.score>=80?'ÓTIMA':a.score>=60?'BOM':a.score>=40?'REGULAR':'RISCO'))+'</div></div>').join(''):'<div class="subcard-empty">Nenhum alerta de oportunidade ativo no momento.</div>';
+ }catch(e){hist.innerHTML='<div class="alert-doc crit">Falha ao carregar: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
 }
-async function status_(id,status){try{await fetch(api('/api/status'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});carregar();}catch(e){hist.innerHTML='<div class="alert-doc crit">Falha ao atualizar status: '+((e&&e.message)?e.message:e)+'</div>'+hist.innerHTML;}}
-async function compararSel(){try{const ids=[...document.querySelectorAll('.sel:checked')].map(e=>e.value);if(ids.length<2){comp.innerHTML='Selecione 2-3 análises no histórico para comparar.';return;}const c=await fetch(api('/api/comparar?ids='+ids.join(','))).then(r=>r.json());if(c.error){comp.innerHTML=c.error;return;}var vi=c.linhas[0].melhor,vs=c.linhas[0].valores[vi],vv=(c.linhas.filter(l=>l.criterio==='Veredito')[0]||{valores:[]}).valores[vi]||'';comp.innerHTML=badge(vs,vv)+'<br><b>'+c.resumo+'</b><div class="table-wrap"><table>'+c.linhas.map(l=>'<tr><td>'+l.criterio+'</td>'+l.valores.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'</table></div>';}catch(e){comp.innerHTML='<div class="alert-doc crit">Falha ao comparar: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function legenda(id){try{id=id||legId.value;const l=await fetch(api('/api/legenda'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}).then(r=>r.json());leg.innerHTML='<pre>'+(l.legenda||l.error)+'</pre><p>'+(l.hashtags||'')+'</p>';}catch(e){leg.innerHTML='<div class="alert-doc crit">Falha ao gerar legenda: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function valorizacao(){try{const v=await fetch(api('/api/valorizacao?id='+legId.value)).then(r=>r.json());leg.innerHTML='<b>'+(v.classificacao||v.error)+'</b> '+(v.projecao12m_pct!=null?v.projecao12m_pct+'% em 12m (faixa '+v.faixa12m_pct+')':'')+'<ul>'+((v.motivos||[]).map(m=>'<li>'+m+'</li>').join(''))+'</ul><small>'+(v.aviso||'')+'</small>';}catch(e){leg.innerHTML='<div class="alert-doc crit">Falha ao projetar valorização: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function wAdd(){try{await fetch(api('/api/watchlist'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:wUrl.value,rotulo:wRot.value})});wUrl.value='';monCarregar();}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao adicionar: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function wDel(id){if(!confirm('Excluir este item da watchlist?'))return;try{await fetch(api('/api/watchlist?id='+id),{method:'DELETE'});monCarregar();}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao excluir: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function mRun(){try{mon.innerHTML='<div class="skeleton">Rodando monitor...</div>';const r=await fetch(api('/api/monitor/run'),{method:'POST'}).then(r=>r.json());mon.innerHTML='<b>verificadas:</b> '+r.verificadas+' <b>novas:</b> '+r.novas+' <b>alertas:</b> '+r.alertas;carregar();monCarregar();}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao rodar monitor: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function monCarregar(){try{const w=await fetch(api('/api/watchlist')).then(r=>r.json());mon.innerHTML=w.length?w.map(x=>'<div>• '+x.rotulo+' <small>'+x.url+'</small> <button class="btn-danger" onclick="wDel(\''+x.id+'\')">excluir</button></div>').join(''):'Nenhum item na watchlist. Adicione uma busca acima.';}catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao carregar watchlist: '+((e&&e.message)?e.message:e)+'</div>';}}
-async function mapaCarregar(){try{const d=await fetch(api('/api/mapa')).then(r=>r.json());mapTab.innerHTML=d.length?'<div class="table-wrap"><table>'+d.map(x=>'<tr><td>'+x.bairro+'</td><td><b>'+x.media+'</b></td><td>n='+x.qtd+'</td></tr>').join('')+'</table></div>':'Sem dados para o mapa ainda.';if(!window.L){map.innerHTML='<div class="alert-doc">Mapa indisponível (Leaflet/CDN offline). Veja a tabela abaixo.</div>';return;}if(d.length){if(!window._map){window._map=L.map('map').setView([-15.79,-47.93],11);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(window._map);}d.forEach(x=>L.circle([x.lat,x.lng],{radius:600+x.qtd*300,color:x.media>10000?'red':x.media>8000?'orange':'green'}).addTo(window._map).bindPopup(x.bairro+': R$'+x.media+'/m² (n='+x.qtd+')'));}}catch(e){mapTab.innerHTML='<div class="alert-doc crit">Falha ao carregar mapa: '+((e&&e.message)?e.message:e)+'</div>';}}
-function leadBadge(f){return '<span class="score-badge '+(f==='QUENTE'?'score-otimo':f==='MORNO'?'score-regular':'st-descartado')+'">'+f+'</span>';}
-async function eqCarregar(){try{const e=await fetch(api('/api/equipe')).then(r=>r.json());eq.innerHTML=e.length?e.map(x=>'<div>• '+x.nome+' <small>'+x.whatsapp+'</small> <span class="pill '+(x.ativo?'st-fechado':'st-descartado')+'">'+(x.ativo?'ativo':'pausado')+'</span> <button class="btn-ghost" onclick="eqToggle(\''+x.id+'\')">pausar/ativar</button> <button class="btn-danger" onclick="eqDel(\''+x.id+'\')">x</button></div>').join(''):'Nenhum corretor na equipe. Adicione acima.';}catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao carregar equipe.</div>';}}
-async function eqAdd(){try{await fetch(api('/api/equipe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome:eqNome.value,whatsapp:eqZap.value})});eqNome.value='';eqZap.value='';eqCarregar();}catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao adicionar.</div>';}}
+
+async function status_(id,status){
+  try{await fetch(api('/api/status'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});carregar();}
+  catch(e){hist.innerHTML='<div class="alert-doc crit">Falha ao atualizar status: '+escapeHtml((e&&e.message)?e.message:e)+'</div>'+hist.innerHTML;}
+}
+
+async function compararSel(){
+  try{
+    const ids=[...document.querySelectorAll('.sel:checked')].map(e=>e.value);
+    if(ids.length<2){comp.innerHTML='<div class="subcard-empty">Selecione 2 ou 3 análises no histórico ao lado para comparar lado a lado.</div>';return;}
+    comp.innerHTML='<div class="skeleton">Comparando imóveis selecionados...</div>';
+    const c=await fetch(api('/api/comparar?ids='+ids.join(','))).then(r=>r.json());
+    if(c.error){comp.innerHTML='<div class="alert-doc crit">'+escapeHtml(c.error)+'</div>';return;}
+    var vi=c.linhas[0].melhor,vs=c.linhas[0].valores[vi],vv=(c.linhas.filter(l=>l.criterio==='Veredito')[0]||{valores:[]}).valores[vi]||'';
+    comp.innerHTML='<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">'+badge(vs,vv)+' <b>'+escapeHtml(c.resumo)+'</b></div><div class="table-wrap"><table class="table-mini"><tbody>'+c.linhas.map(l=>'<tr><td><b>'+escapeHtml(l.criterio)+'</b></td>'+l.valores.map(v=>'<td>'+escapeHtml(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  }catch(e){comp.innerHTML='<div class="alert-doc crit">Falha ao comparar: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function legenda(id){
+  try{
+    id=id||legId.value.trim();
+    if(!id){leg.innerHTML='<div class="alert-doc">Informe ou selecione o ID de uma análise no histórico.</div>';return;}
+    leg.innerHTML='<div class="skeleton">Gerando legenda persuasiva para WhatsApp/Redes...</div>';
+    const l=await fetch(api('/api/legenda'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}).then(r=>r.json());
+    if(l.error){leg.innerHTML='<div class="alert-doc crit">'+escapeHtml(l.error)+'</div>';return;}
+    const textoCompleto=(l.legenda||'')+(l.hashtags?'\n\n'+l.hashtags:'');
+    leg.innerHTML='<div class="legenda-result"><div class="legenda-top"><div class="legenda-title"><span>📝</span> <b>Texto pronto para envio</b></div><button class="btn-sm btn-ghost" onclick="copiarTexto(\'txtLegenda\', this)"><span>📋 Copiar texto</span></button></div><textarea id="txtLegenda" class="legenda-textarea" rows="6" readonly>'+escapeHtml(textoCompleto)+'</textarea>'+(l.hashtags?'<div class="legenda-tags">'+l.hashtags.split(' ').map(t=>'<span class="tag-chip">'+escapeHtml(t)+'</span>').join(' ')+'</div>':'')+'</div>';
+  }catch(e){leg.innerHTML='<div class="alert-doc crit">Falha ao gerar legenda: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function valorizacao(){
+  try{
+    const id=legId.value.trim();
+    if(!id){leg.innerHTML='<div class="alert-doc">Informe ou selecione o ID de uma análise para calcular a projeção.</div>';return;}
+    leg.innerHTML='<div class="skeleton">Calculando projeção de valorização e fatores de mercado...</div>';
+    const v=await fetch(api('/api/valorizacao?id='+encodeURIComponent(id))).then(r=>r.json());
+    if(v.error){leg.innerHTML='<div class="alert-doc crit">'+escapeHtml(v.error)+'</div>';return;}
+    const isPos=(v.projecao12m_pct||0)>=0;
+    leg.innerHTML='<div class="valorizacao-card"><div class="val-header"><div><span class="pill '+(isPos?'st-fechado':'st-descartado')+'">'+escapeHtml(v.classificacao||'Projeção')+'</span><strong class="val-title">Previsão em 12 Meses</strong></div>'+(v.projecao12m_pct!=null?'<span class="score-badge '+(isPos?'score-otimo':'score-regular')+'">'+(v.projecao12m_pct>0?'+':'')+v.projecao12m_pct+'% <small>em 12m</small></span>':'')+'</div>'+(v.faixa12m_pct?'<div class="val-faixa">Faixa estimada: <b>'+escapeHtml(v.faixa12m_pct)+'</b></div>':'')+(v.motivos&&v.motivos.length?'<ul class="val-motivos">'+v.motivos.map(m=>'<li><span class="motivo-dot">✓</span> '+escapeHtml(m)+'</li>').join('')+'</ul>':'')+(v.aviso?'<div class="val-aviso"><small>⚠️ '+escapeHtml(v.aviso)+'</small></div>':'')+'</div>';
+  }catch(e){leg.innerHTML='<div class="alert-doc crit">Falha ao projetar valorização: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function wAdd(){
+  try{
+    const url=wUrl.value.trim(), rotulo=wRot.value.trim();
+    if(!url){alert('Cole o link da busca salva para adicionar ao monitor.');return;}
+    await fetch(api('/api/watchlist'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,rotulo})});
+    wUrl.value='';wRot.value='';
+    monCarregar();
+  }catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao adicionar: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function wDel(id){
+  if(!confirm('Excluir este item da watchlist?'))return;
+  try{await fetch(api('/api/watchlist?id='+encodeURIComponent(id)),{method:'DELETE'});monCarregar();}
+  catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao excluir: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function mRun(){
+  try{
+    mon.innerHTML='<div class="skeleton">Executando varredura na watchlist e analisando ofertas dos portais...</div>';
+    const r=await fetch(api('/api/monitor/run'),{method:'POST'}).then(r=>r.json());
+    mon.innerHTML='<div class="alert-doc" style="border-left-color:var(--score-otimo);background:#F0FDF4">Varredura concluída: <b>'+r.verificadas+'</b> verificadas • <b>'+r.novas+'</b> novas ofertas • <b>'+r.alertas+'</b> alertas de oportunidade.</div>';
+    carregar();
+    setTimeout(monCarregar, 3500);
+  }catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao rodar monitor: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function monCarregar(){
+  try{
+    const w=await fetch(api('/api/watchlist')).then(r=>r.json());
+    mon.innerHTML=w.length?w.map(x=>{
+      let portal='Portal';let portalCls='portal-generic';
+      const u=x.url||'';
+      if(u.includes('dfimoveis.com.br')){portal='DFImóveis';portalCls='portal-df';}
+      else if(u.includes('wimoveis.com.br')){portal='WImóveis';portalCls='portal-wim';}
+      else if(u.includes('netimoveis.com')){portal='NetImóveis';portalCls='portal-net';}
+      return '<div class="watchlist-item"><div class="watchlist-info"><div class="watchlist-header-line"><span class="portal-badge '+portalCls+'">'+portal+'</span><strong class="watchlist-rotulo">'+escapeHtml(x.rotulo||'Busca salva')+'</strong></div><a href="'+escapeHtml(u)+'" target="_blank" rel="noopener noreferrer" class="watchlist-url" title="'+escapeHtml(u)+'">'+escapeHtml(u)+' <span class="ext-ico">↗</span></a></div><div class="watchlist-actions"><button class="btn-sm btn-ghost-danger" onclick="wDel(\''+x.id+'\')" title="Excluir busca salva"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg><span>excluir</span></button></div></div>';
+    }).join(''):'<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-title">Nenhuma busca na watchlist</div><div class="empty-desc">Adicione uma URL de busca salva acima para acompanhar novidades e quedas de preço automaticamente.</div></div>';
+  }catch(e){mon.innerHTML='<div class="alert-doc crit">Falha ao carregar watchlist: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+async function mapaCarregar(){
+  try{
+    const d=await fetch(api('/api/mapa')).then(r=>r.json());
+    mapTab.innerHTML=d.length?'<div class="table-wrap"><table class="table-mini table-map"><thead><tr><th>Bairro</th><th>Preço Médio / m²</th><th>Amostras</th><th>Classificação</th></tr></thead><tbody>'+d.map(x=>{
+      const cls=x.media>10000?'score-risco':x.media>8000?'score-regular':'score-otimo';
+      const lbl=x.media>10000?'Alto Padrão':x.media>8000?'Média DF':'Oportunidade';
+      return '<tr><td><strong>'+escapeHtml(x.bairro)+'</strong></td><td><b class="media-val">R$ '+Number(x.media).toLocaleString('pt-BR')+' / m²</b></td><td><span class="sample-badge">'+x.qtd+' imov.</span></td><td><span class="score-badge '+cls+'" style="font-size:11px;padding:2px 8px">'+lbl+'</span></td></tr>';
+    }).join('')+'</tbody></table></div>':'<div class="subcard-empty">Sem dados para o mapa ainda. Conforme análises forem realizadas, os bairros aparecerão aqui.</div>';
+    if(!window.L){map.innerHTML='<div class="alert-doc">Mapa indisponível (Leaflet/CDN offline). Veja a tabela abaixo.</div>';return;}
+    if(d.length){
+      if(!window._map){window._map=L.map('map').setView([-15.79,-47.93],11);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(window._map);}
+      d.forEach(x=>L.circle([x.lat,x.lng],{radius:600+x.qtd*300,color:x.media>10000?'#b91c1c':x.media>8000?'#b45309':'#15803d',fillOpacity:0.4}).addTo(window._map).bindPopup('<b>'+escapeHtml(x.bairro)+'</b><br>R$ '+Number(x.media).toLocaleString('pt-BR')+'/m² ('+x.qtd+' imóveis)'));
+    }
+  }catch(e){mapTab.innerHTML='<div class="alert-doc crit">Falha ao carregar mapa: '+escapeHtml((e&&e.message)?e.message:e)+'</div>';}
+}
+
+function leadBadge(f){return '<span class="score-badge '+(f==='QUENTE'?'score-otimo':f==='MORNO'?'score-regular':'st-descartado')+'" style="font-size:11px;padding:2px 8px">'+f+'</span>';}
+
+async function eqCarregar(){
+  try{
+    const e=await fetch(api('/api/equipe')).then(r=>r.json());
+    eq.innerHTML=e.length?e.map(x=>'<div class="item-row"><div class="item-info"><strong>'+escapeHtml(x.nome)+'</strong> <small style="color:var(--text-muted)">'+escapeHtml(x.whatsapp)+'</small> <span class="pill '+(x.ativo?'st-fechado':'st-descartado')+'">'+(x.ativo?'ativo':'pausado')+'</span></div><div class="item-actions"><button class="btn-ghost btn-sm" onclick="eqToggle(\''+x.id+'\')">'+(x.ativo?'pausar':'ativar')+'</button><button class="btn-sm btn-ghost-danger" onclick="eqDel(\''+x.id+'\')" title="Remover corretor">x</button></div></div>').join(''):'<div class="subcard-empty">Nenhum corretor na equipe. Adicione acima.</div>';
+  }catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao carregar equipe.</div>';}
+}
+
+async function eqAdd(){
+  try{
+    const n=eqNome.value.trim(), z=eqZap.value.trim();
+    if(!n||!z){alert('Informe nome e WhatsApp do corretor.');return;}
+    await fetch(api('/api/equipe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome:n,whatsapp:z})});
+    eqNome.value='';eqZap.value='';
+    eqCarregar();
+  }catch(e){eq.innerHTML='<div class="alert-doc crit">Falha ao adicionar corretor.</div>';}
+}
+
 async function eqToggle(id){try{await fetch(api('/api/equipe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,toggle:true})});eqCarregar();}catch(e){}}
 async function eqDel(id){if(!confirm('Remover este corretor da equipe?'))return;try{await fetch(api('/api/equipe?id='+id),{method:'DELETE'});eqCarregar();}catch(e){}}
-async function filaCarregar(){try{const f=await fetch(api('/api/fila')).then(r=>r.json());fila.innerHTML=f.length?f.map(l=>'<div>'+leadBadge(l.leadScore.faixa)+' <b>'+((l.lead&&l.lead.nome)||'sem nome')+'</b> <small>'+l.fonte+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small> <button class="btn-ghost" onclick="matchVer(\''+l.id+'\')">match</button></div>').join(''):'Sem leads na fila.';const s=await fetch(api('/api/sla')).then(r=>r.json());sla.innerHTML='a distribuir: <b>'+s.paraDistribuir.length+'</b> • SLA estourado: <b>'+s.slaEstourado.length+'</b> • ok: <b>'+s.ok.length+'</b>';}catch(e){fila.innerHTML='<div class="alert-doc crit">Falha ao carregar fila.</div>';}}
-async function matchVer(id){id=id||matchId.value;if(!id){match.innerHTML='Informe o id do lead.';return;}try{const m=await fetch(api('/api/match?id='+id)).then(r=>r.json());if(m.error){match.innerHTML=m.error;return;}match.innerHTML='<small>perfil: '+JSON.stringify(m.perfil)+'</small>'+(m.matches.length?m.matches.map(x=>'<div>• <b>'+x.pontos+'pts</b> imóvel ...'+x.analiseId.slice(-4)+' (score '+x.scoreImovel+') — '+x.motivos.join('; ')+'</div>').join(''):'<div>Sem matches.</div>');}catch(e){match.innerHTML='<div class="alert-doc crit">Falha ao buscar matches.</div>';}}
-// E4 follow-up
-async function fuVer(){try{const r=await fetch(api('/api/followup?id='+fuId.value)).then(r=>r.json());if(r.error){fu.innerHTML=r.error;return;}fu.innerHTML='<b>Tarefas pendentes:</b> '+(r.tarefas.length?r.tarefas.map(t=>'<div>'+(t.overdue?'🔴':'🟡')+' <b>'+t.nome+'</b> — dia '+t.dias+' — '+t.mensagem+'</div>').join(''):'<div>Nenhuma tarefa pendente.</div>')+(r.proximo?'<div>Próximo: <b>'+r.proximo.nome+'</b></div>':'<div>Sequência completa ✓</div>');}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
-async function fuIniciar(){try{const r=await fetch(api('/api/followup/iniciar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:fuId.value})}).then(r=>r.json());fu.innerHTML=r.ok?'Sequência <b>'+r.followup.sequencia+'</b> iniciada!':r.error;fuVer();}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
-async function fuAvancar(){try{const r=await fetch(api('/api/followup/avancar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:fuId.value})}).then(r=>r.json());fu.innerHTML=r.ok?(r.followup.completo?'Sequência completa!':'Step avançado.'):r.error;fuVer();}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
-// E7 gestor
-async function gestorCarregar(){try{const g=await fetch(api('/api/gestor')).then(r=>r.json());var html='<div class="grid"><div><b>Total:</b> '+g.gerais.total+' <b>Score médio:</b> '+Math.round(g.gerais.scoreMedio)+' <b>Ticket médio:</b> R$ '+(g.gerais.ticketMedio?Math.round(g.gerais.ticketMedio).toLocaleString('pt-BR'):'—')+'</div><div><b>Conversão:</b> '+g.gerais.taxaConversao.toFixed(1)+'% <b>Resposta média:</b> '+Math.round(g.tempoResposta.medioMinutos)+'min</div></div>';html+='<h4>Por corretor</h4>';var cr=g.porCorretor;Object.keys(cr).forEach(k=>{html+='<div>• <b>'+k+'</b>: '+cr[k].fechados+'/'+cr[k].total+' fechados ('+cr[k].taxaConversao.toFixed(0)+'%) — resposta '+Math.round(cr[k].tempoMedioResposta)+'min</div>';});html+='<h4>Por portal</h4>';var cp=g.porPortal;Object.keys(cp).forEach(k=>{html+='<div>• <b>'+k+'</b>: '+cp[k].leads+' leads / '+cp[k].total+' total — '+cp[k].taxaConversao.toFixed(0)+'% conversão</div>';});gestor.innerHTML=html;}catch(e){gestor.innerHTML='<div class="alert-doc crit">Falha ao carregar métricas.</div>';}}
-// E8 proposta
-async function propGerar(){try{const r=await fetch(api('/api/proposta'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:propId.value,config:{corretorNome:'Corretor',corretorCreci:'DF-0000',imobiliariaNome:'Imobiliária'}})}).then(r=>r.json());if(r.error){prop.innerHTML=r.error;return;}prop.innerHTML='<b>'+r.resumo+'</b><pre class="ficha">'+r.proposta+'</pre>'+(r.validacao.erros.length?'<div class="alert-doc">Erros: '+r.validacao.erros.join(', ')+'</div>':'');}catch(e){prop.innerHTML='<div class="alert-doc crit">Falha ao gerar proposta.</div>';}}
-// E9 reativação
-async function reatCarregar(){try{const r=await fetch(api('/api/reativacao')).then(r=>r.json());reat.innerHTML=r.length?r.map(x=>'<div>• <b>'+((x.lead&&x.lead.nome)||'sem nome')+'</b> — fit '+x.pontosFit+' — '+x.motivoReativacao+' <button class="btn-ghost" onclick="reatMsg(\''+x.lead.id+'\')">ver msg</button></div>').join(''):'Sem candidatos para reativação.';}catch(e){reat.innerHTML='<div class="alert-doc crit">Falha ao buscar reativação.</div>';}}
+
+async function filaCarregar(){
+  try{
+    const f=await fetch(api('/api/fila')).then(r=>r.json());
+    fila.innerHTML=f.length?f.map(l=>'<div class="item-row"><div class="item-info">'+leadBadge(l.leadScore.faixa)+' <b>'+escapeHtml((l.lead&&l.lead.nome)||'Lead')+'</b> <small style="color:var(--text-muted)">'+escapeHtml(l.fonte)+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small></div><div class="item-actions"><button class="btn-ghost btn-sm" onclick="matchVer(\''+l.id+'\')">match</button></div></div>').join(''):'<div class="subcard-empty">Sem leads na fila de atendimento.</div>';
+    const s=await fetch(api('/api/sla')).then(r=>r.json());
+    sla.innerHTML='<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px"><span>A distribuir: <b>'+s.paraDistribuir.length+'</b></span> • <span style="color:var(--score-risco)">SLA estourado: <b>'+s.slaEstourado.length+'</b></span> • <span style="color:var(--score-otimo)">Dentro do prazo: <b>'+s.ok.length+'</b></span></div>';
+  }catch(e){fila.innerHTML='<div class="alert-doc crit">Falha ao carregar fila.</div>';}
+}
+
+async function matchVer(id){
+  id=id||matchId.value.trim();
+  if(!id){match.innerHTML='<div class="alert-doc">Informe o ID do lead para buscar matches.</div>';return;}
+  try{
+    match.innerHTML='<div class="skeleton">Buscando imóveis com fit para o lead...</div>';
+    const m=await fetch(api('/api/match?id='+encodeURIComponent(id))).then(r=>r.json());
+    if(m.error){match.innerHTML='<div class="alert-doc crit">'+escapeHtml(m.error)+'</div>';return;}
+    match.innerHTML=(m.matches&&m.matches.length)?m.matches.map(x=>'<div class="item-row"><div class="item-info"><span class="score-badge score-otimo" style="font-size:11px;padding:2px 8px">'+x.pontos+' pts</span> <b>Imóvel ...'+escapeHtml(x.analiseId.slice(-4))+'</b> <small style="color:var(--text-muted)">score '+x.scoreImovel+' • '+escapeHtml(x.motivos.join('; '))+'</small></div></div>').join(''):'<div class="subcard-empty">Nenhum imóvel compatível encontrado para este perfil.</div>';
+  }catch(e){match.innerHTML='<div class="alert-doc crit">Falha ao buscar matches.</div>';}
+}
+
+async function fuVer(){
+  try{
+    const id=fuId.value.trim();
+    if(!id){fu.innerHTML='<div class="alert-doc">Informe o ID do lead para ver tarefas de follow-up.</div>';return;}
+    fu.innerHTML='<div class="skeleton">Carregando sequência de follow-up...</div>';
+    const r=await fetch(api('/api/followup?id='+encodeURIComponent(id))).then(r=>r.json());
+    if(r.error){fu.innerHTML='<div class="alert-doc crit">'+escapeHtml(r.error)+'</div>';return;}
+    fu.innerHTML='<div style="margin-bottom:8px"><b>Tarefas da sequência:</b></div>'+(r.tarefas&&r.tarefas.length?r.tarefas.map(t=>'<div class="item-row"><div class="item-info"><span>'+(t.overdue?'🔴':'🟡')+'</span> <b>'+escapeHtml(t.nome)+'</b> <small style="color:var(--text-muted)">Dia '+t.dias+' • '+escapeHtml(t.mensagem)+'</small></div></div>').join(''):'<div class="subcard-empty">Nenhuma tarefa pendente no momento.</div>')+(r.proximo?'<div style="margin-top:8px;font-size:13px">Próxima etapa: <b>'+escapeHtml(r.proximo.nome)+'</b></div>':'<div style="margin-top:8px;color:var(--score-otimo);font-weight:700">Sequência completa ✓</div>');
+  }catch(e){fu.innerHTML='<div class="alert-doc crit">Falha ao consultar follow-up.</div>';}
+}
+
+async function fuIniciar(){
+  try{
+    const id=fuId.value.trim();
+    if(!id){fu.innerHTML='<div class="alert-doc">Informe o ID do lead.</div>';return;}
+    const r=await fetch(api('/api/followup/iniciar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}).then(r=>r.json());
+    fu.innerHTML=r.ok?'<div class="alert-doc" style="background:#F0FDF4;border-color:var(--score-otimo)">Sequência <b>'+escapeHtml(r.followup.sequencia)+'</b> iniciada com sucesso!</div>':'<div class="alert-doc crit">'+escapeHtml(r.error)+'</div>';
+    fuVer();
+  }catch(e){fu.innerHTML='<div class="alert-doc crit">Falha ao iniciar sequência.</div>';}
+}
+
+async function fuAvancar(){
+  try{
+    const id=fuId.value.trim();
+    if(!id){fu.innerHTML='<div class="alert-doc">Informe o ID do lead.</div>';return;}
+    const r=await fetch(api('/api/followup/avancar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}).then(r=>r.json());
+    fu.innerHTML=r.ok?'<div class="alert-doc" style="background:#F0FDF4;border-color:var(--score-otimo)">'+(r.followup.completo?'Sequência completa!':'Step avançado com sucesso.')+'</div>':'<div class="alert-doc crit">'+escapeHtml(r.error)+'</div>';
+    fuVer();
+  }catch(e){fu.innerHTML='<div class="alert-doc crit">Falha ao avançar step.</div>';}
+}
+
+async function gestorCarregar(){
+  try{
+    gestor.innerHTML='<div class="skeleton">Consolidando métricas e conversões da equipe...</div>';
+    const g=await fetch(api('/api/gestor')).then(r=>r.json());
+    var html='<div class="metric-grid"><div class="metric-stat-card"><b>'+g.gerais.total+'</b><span>Total Análises</span></div><div class="metric-stat-card"><b>'+Math.round(g.gerais.scoreMedio)+'</b><span>Score Médio</span></div><div class="metric-stat-card"><b>'+(g.gerais.ticketMedio?'R$ '+Math.round(g.gerais.ticketMedio).toLocaleString('pt-BR'):'—')+'</b><span>Ticket Médio</span></div><div class="metric-stat-card"><b>'+g.gerais.taxaConversao.toFixed(1)+'%</b><span>Taxa Conversão</span></div><div class="metric-stat-card"><b>'+Math.round(g.tempoResposta.medioMinutos)+'m</b><span>Tempo Resposta</span></div></div>';
+    html+='<div class="grid"><div><h4>Por Corretor</h4>';
+    var cr=g.porCorretor||{};
+    Object.keys(cr).forEach(k=>{html+='<div class="item-row"><div class="item-info"><b>'+escapeHtml(k)+'</b></div><div class="item-actions"><span class="pill st-fechado">'+cr[k].fechados+'/'+cr[k].total+' ('+cr[k].taxaConversao.toFixed(0)+'%)</span> <small style="color:var(--text-muted)">'+Math.round(cr[k].tempoMedioResposta)+'min</small></div></div>';});
+    html+='</div><div><h4>Por Portal</h4>';
+    var cp=g.porPortal||{};
+    Object.keys(cp).forEach(k=>{html+='<div class="item-row"><div class="item-info"><b>'+escapeHtml(k)+'</b></div><div class="item-actions"><span class="pill st-analisado">'+cp[k].leads+' leads</span> <span class="pill st-fechado">'+cp[k].taxaConversao.toFixed(0)+'% conv.</span></div></div>';});
+    html+='</div></div>';
+    gestor.innerHTML=html;
+  }catch(e){gestor.innerHTML='<div class="alert-doc crit">Falha ao carregar métricas de gestão.</div>';}
+}
+
+async function propGerar(){
+  try{
+    const id=propId.value.trim();
+    if(!id){prop.innerHTML='<div class="alert-doc">Informe o ID da análise para gerar a proposta formal.</div>';return;}
+    prop.innerHTML='<div class="skeleton">Elaborando proposta digital auditada...</div>';
+    const r=await fetch(api('/api/proposta'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,config:{corretorNome:'Corretor',corretorCreci:'DF-0000',imobiliariaNome:'Imobiliária'}})}).then(r=>r.json());
+    if(r.error){prop.innerHTML='<div class="alert-doc crit">'+escapeHtml(r.error)+'</div>';return;}
+    prop.innerHTML='<div class="legenda-result"><div class="legenda-top"><div class="legenda-title"><span>📄</span> <b>'+escapeHtml(r.resumo)+'</b></div><button class="btn-sm btn-ghost" onclick="copiarTexto(\'txtProposta\', this)"><span>📋 Copiar proposta</span></button></div><textarea id="txtProposta" class="legenda-textarea" rows="8" readonly>'+escapeHtml(r.proposta)+'</textarea>'+((r.validacao&&r.validacao.erros&&r.validacao.erros.length)?'<div class="alert-doc crit">Pendências: '+escapeHtml(r.validacao.erros.join(', '))+'</div>':'')+'</div>';
+  }catch(e){prop.innerHTML='<div class="alert-doc crit">Falha ao gerar proposta digital.</div>';}
+}
+
+function reatMsg(leadId){
+  alert('Mensagem sugerida pronta para reativar o lead '+leadId+'. Utilize o WhatsApp para disparar a abordagem.');
+}
+
+async function reatCarregar(){
+  try{
+    reat.innerHTML='<div class="skeleton">Cruzando leads frios com novas análises...</div>';
+    const r=await fetch(api('/api/reativacao')).then(r=>r.json());
+    reat.innerHTML=r.length?r.map(x=>'<div class="item-row"><div class="item-info"><span class="score-badge score-bom" style="font-size:11px;padding:2px 8px">Fit '+x.pontosFit+'</span> <b>'+escapeHtml((x.lead&&x.lead.nome)||'Lead sem nome')+'</b> <small style="color:var(--text-muted)">'+escapeHtml(x.motivoReativacao||'')+'</small></div><div class="item-actions"><button class="btn-ghost btn-sm" onclick="reatMsg(\''+(x.lead&&x.lead.id)+'\')">ver abordagem</button></div></div>').join(''):'<div class="subcard-empty">Nenhum candidato para reativação no momento.</div>';
+  }catch(e){reat.innerHTML='<div class="alert-doc crit">Falha ao buscar leads para reativação.</div>';}
+}
+
 // PWA
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
- carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
+carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
 </script>
 </body></html>

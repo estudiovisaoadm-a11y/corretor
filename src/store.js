@@ -25,7 +25,14 @@ function uid() {
 
 function addAnalise(a) {
   const db = load();
-  const rec = { id: uid(), createdAt: new Date().toISOString(), status: 'analisado', ...a };
+  const agoraIso = new Date().toISOString();
+  const rec = {
+    id: uid(),
+    createdAt: a?.createdAt || a?.criadoEm || agoraIso,
+    criadoEm: a?.criadoEm || a?.createdAt || agoraIso,
+    status: 'analisado',
+    ...a
+  };
   db.analises.unshift(rec);
   save(db);
   return rec;

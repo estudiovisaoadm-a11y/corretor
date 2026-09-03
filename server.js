@@ -83,8 +83,9 @@ function painelHtml() {
 }
 
 const server = http.createServer(async (req, res) => {
-  const path = req.url.split('?')[0];
-  if (req.method === 'OPTIONS') return send(res, 204, '');
+  try {
+    const path = req.url.split('?')[0];
+    if (req.method === 'OPTIONS') return send(res, 204, '');
   if (req.method === 'GET' && path === '/styles.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }

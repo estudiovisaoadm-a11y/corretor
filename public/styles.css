@@ -61,7 +61,7 @@
 
 * { box-sizing: border-box; }
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   font-size: var(--fs-body);
   margin: 0;
   background: var(--bg);
@@ -69,6 +69,83 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Jornada: o painel revela uma decisão por vez, sem misturar operação e gestão. */
+.area-panel { display: none; }
+.area-panel.is-active { display: block; animation: area-in .28s ease-out both; }
+main > .grid { display: none; }
+main > .grid:has(> .area-panel.is-active) { display: grid; }
+@keyframes area-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgb(255 255 255 / .94);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 5px 20px rgb(26 18 11 / .06);
+  backdrop-filter: blur(14px);
+}
+.app-nav-inner {
+  max-width: 1120px;
+  min-height: 64px;
+  margin: 0 auto;
+  padding: 10px var(--sp-4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+}
+.nav-label {
+  color: var(--accent-600);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+.nav-item {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .2s;
+}
+.nav-item span { color: var(--accent-600); font-size: 17px; margin-right: 5px; }
+.nav-item:hover { background: var(--surface-warm); color: var(--brand-800); transform: translateY(-1px); }
+.nav-item.active { background: var(--brand-900); color: #fff; box-shadow: 0 4px 12px rgb(26 18 11 / .18); }
+.nav-item.active span { color: var(--accent-400); }
+.nav-divider { height: 28px; width: 1px; background: var(--border); margin: 0 8px; }
+.section-kicker, .hero-kicker {
+  color: var(--accent-600);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+.hero-kicker { color: var(--accent-400); }
+.hero-journey {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 24px 0 4px;
+  color: rgb(255 248 236 / .54);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+.journey-step { display: inline-flex; align-items: center; gap: 7px; }
+.journey-step b { color: var(--accent-400); font-size: 12px; }
+.journey-step.active { color: #fff8ec; }
+.hero-journey i { width: 28px; height: 1px; background: rgb(212 173 82 / .4); }
 
 /* ================================================================
    HERO (header)

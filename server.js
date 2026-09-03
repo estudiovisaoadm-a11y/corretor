@@ -1,5 +1,7 @@
 // Servidor completo — zero dependências. Painel + API + webhook WhatsApp + CRM leve.
 const http = require('http');
+const fs = require('fs');
+const pathMod = require('path');
 const { analisar, fichaMarkdown } = require('./src/ficha');
 const { handleIncoming } = require('./src/bot/handler');
 const { sendText } = require('./src/bot/evolution');
@@ -98,7 +100,11 @@ carregar();monCarregar();mapaCarregar();
 const server = http.createServer(async (req, res) => {
   const path = req.url.split('?')[0];
   if (req.method === 'OPTIONS') return send(res, 204, '');
-  if (req.method === 'GET' && path === '/') return send(res, 200, PAINEL, 'text/html');
+  if (req.method === 'GET' && path === '/') {
+    let html = PAINEL;
+    try { html = fs.readFileSync(pathMod.join(__dirname, 'public', 'index.html'), 'utf8'); } catch { /* usa template embutido */ }
+    return send(res, 200, html, 'text/html');
+  }
 
   if (req.method === 'POST' && path === '/api/analisar') {
     const input = await readJson(req);

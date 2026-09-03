@@ -13,12 +13,12 @@
   --st-visitado: #7c3aed;
   --st-proposta: #b45309;
   --st-fechado: #15803d;
-  --st-descartado: #9ca3af;
+  --st-descartado: #6a6f77;
   --bg: #f4f4f5;
   --surface: #ffffff;
   --border: #e5e7eb;
   --text: #111827;
-  --text-muted: #6b7280;
+  --text-muted: #68707d;
   --fs-display: 28px;
   --fs-h: 17px;
   --fs-body: 15px;
@@ -40,7 +40,7 @@ main { max-width: 1100px; margin: 0 auto; padding: var(--sp-4); }
 section, .card { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: var(--sp-4); margin-bottom: var(--sp-4); }
 h3 { font-size: var(--fs-h); margin: 0 0 var(--sp-3); }
 table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
-thead th { position: sticky; top: 0; background: var(--surface); }
+thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
 tbody tr:nth-child(even) { background: #fafafa; }
 tbody tr:hover { background: #f0f4ff; }
 td, th { border-bottom: 1px solid var(--border); padding: var(--sp-2); text-align: left; }
@@ -49,7 +49,9 @@ input, select, textarea { font-size: var(--fs-body); padding: var(--sp-2); borde
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand-600); box-shadow: 0 0 0 2px rgb(31 42 68 / .25); }
 button { font-size: var(--fs-body); min-height: 44px; padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-field); border: 1px solid transparent; background: var(--brand-800); color: #fff; cursor: pointer; }
 button:hover { background: var(--brand-600); }
-button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent-500); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent-500); outline-offset: 2px; }
+select { min-height: 44px; }
+input[type="checkbox"], input[type="radio"] { min-width: 44px; min-height: 44px; }
 button:disabled { opacity: .5; cursor: wait; }
 .btn-ghost { background: transparent; color: var(--brand-800); border-color: var(--border); }
 .btn-ghost:hover { background: var(--bg); }
@@ -60,7 +62,7 @@ button:disabled { opacity: .5; cursor: wait; }
 .pill { display: inline-block; padding: 2px 8px; border-radius: var(--radius-pill); font-size: 11px; background: #eee; color: var(--text); }
 /* score-badge: cor + palavra, nunca só número */
 .score-badge { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 12px; border-radius: var(--radius-pill); font-weight: 700; color: #fff; white-space: nowrap; }
-.score-badge small { font-weight: 400; opacity: .9; }
+.score-badge small { font-weight: 400; opacity: 1; }
 .score-otimo { background: var(--score-otimo); }
 .score-bom { background: var(--score-bom); }
 .score-regular { background: var(--score-regular); }

@@ -60,6 +60,11 @@ function fichaMarkdown(a) {
   const e = a.extracao;
   const fmt = (v) => v === true ? '✅ Sim' : v === false ? '❌ Não' : '⚠️ Confirmar';
   const brl = (v) => v ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) : '—';
+  // Ordem canônica 1→9: veredito → preço → local → financiamento → permuta → documentação → motivos → pendências → selos.
+  // Se falta escritura ou habite-se, o motivo de documentação deve explicitar o risco.
+  const faltaDoc = (e.precisa_confirmar || []).some((p) => /escritura|habite/i.test(String(p)));
+  let motivoDoc = a.detalhes.documentacao.motivo;
+  if (faltaDoc && !/risco documental/i.test(motivoDoc)) motivoDoc += ' — ⚠️ RISCO DOCUMENTAL';
   return [
     `# Ficha — ${a.veredito} (${a.score}/100)`,
     ``,
@@ -72,7 +77,7 @@ function fichaMarkdown(a) {
     ``,
     `## Por quê`,
     `- m²: ${a.detalhes.preco_m2.motivo}`,
-    `- doc: ${a.detalhes.documentacao.motivo}`,
+    `- doc: ${motivoDoc}`,
     ...(e.precisa_confirmar.length ? [`- ⚠️ Confirmar com anunciante: ${e.precisa_confirmar.join(', ')}`] : []),
     ...(a.fonte === 'dfimoveis' && a.parsed.selos?.imovelSeguro ? [`- Selo Imóvel Seguro detectado`] : []),
     ...(a.parsed.oportunidadeSinal ? [`- Sinal de queda de preço (WImóveis) — checar histórico`] : [])

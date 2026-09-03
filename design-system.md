@@ -97,9 +97,9 @@ Escala 4pt (`--sp-1:4px … --sp-6:24px`) · `--radius-card:12px`, `--radius-pil
 
 ## 7. Plano de implementação
 
-1. Criar `public/styles.css` com tokens (§3) + componentes (§4); trocar `<style>` e inlines por classes.
-2. Criar `score-badge` e aplicar em histórico, comparador e ficha (painel + texto do bot mantêm mesma ordem de campos).
-3. Adicionar `alert-doc`, `map-legend` e `skeleton` nos 3 fluxos com loading.
-4. Revisão de contraste + navegação por teclado; registrar pares em tabela de QA.
+- [x] 1. `public/styles.css` com tokens (§3) + componentes (§4); `<style>` e inlines trocados por classes.
+- [x] 2. `score-badge` em histórico, comparador e ficha (painel); ficha do bot segue mesma ordem de campos (§5).
+- [x] 3. `alert-doc`, `map-legend` e `skeleton` nos fluxos com loading; erros visíveis em vez de falha silenciosa.
+- [x] 4. Revisão de contraste (todos os pares ≥4.5:1; ajustes: `--text-muted` → `#68707d`, `--st-descartado` → `#6a6f77`, `score-badge small` opacidade 1) + navegação por teclado (Enter analisa, `:focus-visible` em tudo, alvos ≥44px) + `lang="pt-BR"` + empty states + `confirm()` ao excluir watchlist.
 
-Fora de escopo agora: dark mode, troca de fonte, framework CSS.
+Fora de escopo: dark mode, troca de fonte, framework CSS.

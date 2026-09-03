@@ -4,8 +4,8 @@
   "description": "Análise inteligente de anúncios imobiliários com score, ficha e CRM",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF7F1",
-  "theme_color": "#2A1B12",
+  "background_color": "#F8F4ED",
+  "theme_color": "#1A120B",
   "orientation": "any",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

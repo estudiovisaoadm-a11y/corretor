@@ -1,26 +1,12 @@
-# Design System — IA Imóveis (auditoria + proposta)
+# Design System — IA Imóveis (Horizon Premium)
 
 Data: 03/09/2026 · Escopo: `public/index.html` (painel) + ficha WhatsApp (texto)
 
-## 1. Diagnóstico do estado atual
+## 1. Identidade Visual
 
-Base real auditada: 1 bloco `<style>` com ~10 regras + estilos inline (`style="width:100%"`, `height:320px`) e 2 classes dinâmicas (`.pill`, `.cfg`).
+Inspirado no design "Horizon Real Estate" — tom marrom escuro profundo com branco/creme e acentos dourados. Sensação premium, confiança e elegância.
 
-**Forças**
-- Layout simples e funcional: header + cards + grid 2 col que colapsa no mobile (`@media 800px`).
-- Contraste do header ok (branco sobre `#111827`).
-- Hierarquia básica existe (h3 por seção, tabela no histórico).
-
-**Problemas (por impacto)**
-1. **Sem tokens:** cores, raios e espaçamentos repetidos como literais (`#111827`, `#eee`, `#f4f4f5`, `10px`, `6px`). Mudar a identidade = caçar strings.
-2. **Estilos inline no HTML:** `width:100%`, `width:55%/25%`, `height:320px` misturam estrutura e estilo; quebram fácil no mobile.
-3. **Score sem linguagem visual:** o dado mais importante (0-100) aparece como número puro, sem cor por faixa. O corretor decide pelo número, não pelo significado.
-4. **Botões sem estados:** sem `:hover`, `:focus-visible`, `:disabled`. Sem foco visível = falha de acessibilidade (WCAG 2.4.7).
-5. **Tabelas densas:** sem zebra/hover, fonte 13px, sem sticky header — com 50+ análises vira parede de texto.
-6. **Feedback de loading fraco:** só o monitor mostra "rodando..."; análise/comparador travam a UI sem indicar progresso.
-7. **Mapa fora da identidade:** Leaflet com pin/cores padrão; legenda da cor (verde→vermelho) só existe no código, não na tela.
-8. **Tipografia sem escala:** tudo `system-ui` tamanho default; h3, corpo e tabelas sem hierarquia definida.
-9. **Ficha WhatsApp:** usa `*negrito*` e texto corrido — ok pro canal, mas sem padrão de ordem dos campos entre ficha do painel e do bot.
+**Palavras-chave:** premium, quente, confiável, sofisticado.
 
 ## 2. Princípios
 
@@ -28,17 +14,22 @@ Base real auditada: 1 bloco `<style>` com ~10 regras + estilos inline (`style="w
 2. **Zero dependência:** CSS vanilla com variáveis — nada de framework, mesma filosofia do backend.
 3. **Mobile do corretor:** alvos ≥44px, tabelas com scroll horizontal, mapa funcional em tela pequena.
 4. **Confiança documental:** risco de documentação sempre em vermelho/âmbar explícito, nunca em cinza neutro.
+5. **Premium sem peso:** glassmorphism e gradientes sutis que comunicam qualidade sem prejudicar performance.
 
 ## 3. Tokens
 
 ### 3.1. Cores
 ```css
 :root {
-  /* Marca (derivado do atual #111827) */
-  --brand-900: #0b1220;
-  --brand-800: #111827;
-  --brand-600: #1f2a44;
-  --accent-500: #c9a227; /* dourado imobiliário — CTAs secundários, selos */
+  /* Marca — escala marrom profundo */
+  --brand-950: #120C07;
+  --brand-900: #1A120B;
+  --brand-800: #2D1F14;
+  --brand-700: #3F2E1E;
+  --brand-600: #5C4330;
+  --accent-500: #C49A3C;  /* dourado — CTAs, selos, acentos */
+  --accent-400: #D4AD52;  /* dourado claro — gradientes */
+  --accent-600: #A47F2E;  /* dourado escuro — bordas de CTA */
 
   /* Score / veredito (única fonte de verdade p/ cor) */
   --score-otimo: #15803d;   /* 80-100 */
@@ -52,54 +43,91 @@ Base real auditada: 1 bloco `<style>` com ~10 regras + estilos inline (`style="w
   --st-visitado: #7c3aed;
   --st-proposta: #b45309;
   --st-fechado: #15803d;
-  --st-descartado: #9ca3af;
+  --st-descartado: #6a6f77;
 
   /* Superfície e texto */
-  --bg: #f4f4f5;
+  --bg: #F8F4ED;             /* fundo geral creme suave */
   --surface: #ffffff;
-  --border: #e5e7eb;
-  --text: #111827;
-  --text-muted: #6b7280;
+  --surface-warm: #FBF8F3;   /* fundo alternado tabelas/cards */
+  --border: #E8DDD0;
+  --border-light: #F0E8DC;
+  --text: #1A120B;           /* texto principal */
+  --text-secondary: #3F2E1E; /* subtítulos */
+  --text-muted: #7A6B5A;     /* legendas, captions */
 }
 ```
 
 ### 3.2. Tipografia (system-ui, com escala)
-`--fs-display: 28px` (score grande) · `--fs-h: 17px` · `--fs-body: 15px` · `--fs-small: 13px` · `--fs-caption: 12px`. Peso 700 só em score, veredito e valores R$.
+`--fs-display: 36px` (título hero) · `--fs-h: 18px` · `--fs-body: 15px` · `--fs-small: 13px` · `--fs-caption: 12px`. Peso 800 em títulos e scores, 700 em botões e valores R$.
 
 ### 3.3. Espaçamento, raio, sombra
-Escala 4pt (`--sp-1:4px … --sp-6:24px`) · `--radius-card:12px`, `--radius-pill:999px` · sombra de card `0 1px 3px rgb(0 0 0 / .08)`.
+Escala 4pt (`--sp-1:4px … --sp-8:32px`) · `--radius-card:16px`, `--radius-field:10px`, `--radius-pill:999px`.
+
+Sombras em 3 níveis:
+- `--shadow-card`: sutil, repouso
+- `--shadow-card-hover`: elevação no hover
+- `--shadow-elevated`: card de busca sobre hero
 
 ## 4. Componentes
 
 | Componente | Regra |
 |---|---|
-| `btn-primary` | fundo brand, hover escurece 10%, focus com anel de 2px, disabled 50% opacidade |
+| `btn-primary` (hero CTA) | gradiente dourado accent, hover escurece, shadow dourado |
 | `btn-ghost` / `btn-danger` | ações secundárias (legenda) e destrutivas (remover watch) |
-| `score-badge` | pílula grande com cor da faixa + veredito em texto; **sempre os dois juntos** |
+| `score-badge` | pílula com cor da faixa + veredito em texto; **sempre os dois juntos** |
 | `status-pill` | cor do estágio (tabela §3.1); "descartado" usa cinza tracejado |
-| `table` | zebra sutil, hover na linha, header sticky, scroll-x no mobile |
-| `input/select/textarea` | borda `--border`, foco com anel brand, erro com borda vermelha + mensagem |
-| `alert-doc` | bloco âmbar/vermelho com ícone para risco documental — nunca texto cinza |
+| `table` | zebra warm, hover na linha, header sticky uppercase, scroll-x no mobile |
+| `input/select/textarea` | borda border, foco com anel dourado, placeholder muted |
+| `alert-doc` | bloco âmbar/vermelho com borda esquerda para risco documental |
 | `map-legend` | legenda visível no mapa (verde ≤8k, âmbar ≤10k, vermelho >10k) |
-| `skeleton` | placeholder pulsante em análise/comparador/monitor durante fetch |
+| `skeleton` | placeholder pulsante em tons creme durante fetch |
+| `search-card` | card glassmorphism sobre o hero, elevação alta |
+| `hstat` | stats glassmorphism sobre fundo escuro, backdrop-blur |
+| `diff` | card de diferencial com ícone gradient e hover elevado |
+| `hist-card` | card de histórico com banner gradient no topo |
 
-## 5. Mapeamento dado → visual (contrato)
+## 5. Hero / Header
 
-- Score → `score-otimo/bom/regular/risco` pela mesma função do `score.js` (frontend e backend compartilham as faixas 80/60/40).
+- Gradiente profundo: `#120C07 → #1A120B → #2D1F14 → #3A271A`
+- Glow dourado em radial-gradient (accent com 28% e 15% de opacidade)
+- Grid sutil 48×48px com máscara fade
+- Stats com glassmorphism (blur 8px, border white/12%)
+- Foto decorativa com gradiente marrom→dourado e card overlay
+
+## 6. Mapeamento dado → visual (contrato)
+
+- Score → `score-otimo/bom/regular/risco` pela mesma função do `score.js`.
 - `precisa_confirmar` não vazio → `alert-doc` âmbar listando os itens.
-- Selo `Imóvel Seguro` → selo dourado `accent-500`.
+- Selo `Imóvel Seguro` → selo dourado com gradiente accent.
 - Mapa: mesma rampa do `mapaCarregar` (red >10k, orange >8k, green demais) + legenda em tela.
 
-## 6. Acessibilidade (mínimo)
+## 7. Acessibilidade (mínimo)
 
-- Contraste ≥4.5:1 em texto; pares validados: branco/`#111827`, branco/`#15803d`, branco/`#b91c1c`, `#111827`/`#f4f4f5`.
-- `:focus-visible` em todo interativo; alvos de toque ≥44px; respeitar `prefers-reduced-motion` (desliga pulse do skeleton).
+- Contraste ≥4.5:1 em texto; pares validados: branco/`#1A120B`, branco/`#15803d`, branco/`#b91c1c`, `#1A120B`/`#F8F4ED`.
+- `:focus-visible` com anel dourado em todo interativo; alvos de toque ≥44px; respeitar `prefers-reduced-motion`.
 
-## 7. Plano de implementação
+## 8. Paleta de referência visual
 
-- [x] 1. `public/styles.css` com tokens (§3) + componentes (§4); `<style>` e inlines trocados por classes.
-- [x] 2. `score-badge` em histórico, comparador e ficha (painel); ficha do bot segue mesma ordem de campos (§5).
-- [x] 3. `alert-doc`, `map-legend` e `skeleton` nos fluxos com loading; erros visíveis em vez de falha silenciosa.
-- [x] 4. Revisão de contraste (todos os pares ≥4.5:1; ajustes: `--text-muted` → `#68707d`, `--st-descartado` → `#6a6f77`, `score-badge small` opacidade 1) + navegação por teclado (Enter analisa, `:focus-visible` em tudo, alvos ≥44px) + `lang="pt-BR"` + empty states + `confirm()` ao excluir watchlist.
+| Uso | Cor | Hex |
+|---|---|---|
+| Hero background (mais escuro) | ████ | `#120C07` |
+| Hero background (base) | ████ | `#1A120B` |
+| Brand primário / botões | ████ | `#2D1F14` |
+| Brand intermediário | ████ | `#3F2E1E` |
+| Brand claro | ████ | `#5C4330` |
+| Dourado CTA | ████ | `#C49A3C` |
+| Dourado claro (gradiente) | ████ | `#D4AD52` |
+| Fundo geral | ████ | `#F8F4ED` |
+| Superfície (cards) | ████ | `#FFFFFF` |
+| Borda | ████ | `#E8DDD0` |
+| Texto principal | ████ | `#1A120B` |
+| Texto muted | ████ | `#7A6B5A` |
+
+## 9. Arquivos atualizados
+
+- [x] `public/styles.css` — tokens + componentes completos
+- [x] `public/index.html` — meta theme-color atualizado
+- [x] `public/offline.html` — cores hardcoded atualizadas
+- [x] `public/manifest.json` — background_color e theme_color
 
 Fora de escopo: dark mode, troca de fonte, framework CSS.

@@ -1,0 +1,17 @@
+{
+  "name": "sistema-ia-imoveis",
+  "version": "0.1.0",
+  "description": "MVP: Bot/IA para analisar anúncios (m², localização, financiamento, permuta, documentação)",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node demo.js",
+    "test:bot": "node test-webhook.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
+}

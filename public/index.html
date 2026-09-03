@@ -1,4 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IA Imóveis — Painel</title>
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#2A1B12">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head><body>
@@ -41,6 +42,12 @@
 <div><h4>Fila — ligar primeiro</h4><button onclick="filaCarregar()">Atualizar fila</button><div id="fila"></div>
 <h4>Match lead × imóvel</h4><input id="matchId" placeholder="id do lead" style="width:300px"> <button onclick="matchVer()">Ver matches</button><div id="match"></div></div>
 </div></section>
+<section class="card"><h3>Gestão — métricas do time</h3><button onclick="gestorCarregar()">Atualizar métricas</button><div id="gestor"></div></section>
+<section class="card"><h3>Follow-up — sequências automáticas</h3>
+<input id="fuId" placeholder="id do lead" style="width:300px"> <button onclick="fuIniciar()">Iniciar sequência</button> <button onclick="fuVer()">Ver tarefas</button> <button onclick="fuAvancar()">Avançar step</button><div id="fu"></div></section>
+<section class="card"><h3>Proposta digital</h3>
+<input id="propId" placeholder="id da análise" style="width:300px"> <button onclick="propGerar()">Gerar proposta</button><div id="prop"></div></section>
+<section class="card"><h3>Reativação — leads frios</h3><button onclick="reatCarregar()">Buscar candidatos</button><div id="reat"></div></section>
 <section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico">✓</span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico">⌂</span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
 </main>
 <script>
@@ -98,6 +105,18 @@ async function eqToggle(id){try{await fetch(api('/api/equipe'),{method:'POST',he
 async function eqDel(id){if(!confirm('Remover este corretor da equipe?'))return;try{await fetch(api('/api/equipe?id='+id),{method:'DELETE'});eqCarregar();}catch(e){}}
 async function filaCarregar(){try{const f=await fetch(api('/api/fila')).then(r=>r.json());fila.innerHTML=f.length?f.map(l=>'<div>'+leadBadge(l.leadScore.faixa)+' <b>'+((l.lead&&l.lead.nome)||'sem nome')+'</b> <small>'+l.fonte+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small> <button class="btn-ghost" onclick="matchVer(\''+l.id+'\')">match</button></div>').join(''):'Sem leads na fila.';const s=await fetch(api('/api/sla')).then(r=>r.json());sla.innerHTML='a distribuir: <b>'+s.paraDistribuir.length+'</b> • SLA estourado: <b>'+s.slaEstourado.length+'</b> • ok: <b>'+s.ok.length+'</b>';}catch(e){fila.innerHTML='<div class="alert-doc crit">Falha ao carregar fila.</div>';}}
 async function matchVer(id){id=id||matchId.value;if(!id){match.innerHTML='Informe o id do lead.';return;}try{const m=await fetch(api('/api/match?id='+id)).then(r=>r.json());if(m.error){match.innerHTML=m.error;return;}match.innerHTML='<small>perfil: '+JSON.stringify(m.perfil)+'</small>'+(m.matches.length?m.matches.map(x=>'<div>• <b>'+x.pontos+'pts</b> imóvel ...'+x.analiseId.slice(-4)+' (score '+x.scoreImovel+') — '+x.motivos.join('; ')+'</div>').join(''):'<div>Sem matches.</div>');}catch(e){match.innerHTML='<div class="alert-doc crit">Falha ao buscar matches.</div>';}}
+// E4 follow-up
+async function fuVer(){try{const r=await fetch(api('/api/followup?id='+fuId.value)).then(r=>r.json());if(r.error){fu.innerHTML=r.error;return;}fu.innerHTML='<b>Tarefas pendentes:</b> '+(r.tarefas.length?r.tarefas.map(t=>'<div>'+(t.overdue?'🔴':'🟡')+' <b>'+t.nome+'</b> — dia '+t.dias+' — '+t.mensagem+'</div>').join(''):'<div>Nenhuma tarefa pendente.</div>')+(r.proximo?'<div>Próximo: <b>'+r.proximo.nome+'</b></div>':'<div>Sequência completa ✓</div>');}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
+async function fuIniciar(){try{const r=await fetch(api('/api/followup/iniciar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:fuId.value})}).then(r=>r.json());fu.innerHTML=r.ok?'Sequência <b>'+r.followup.sequencia+'</b> iniciada!':r.error;fuVer();}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
+async function fuAvancar(){try{const r=await fetch(api('/api/followup/avancar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:fuId.value})}).then(r=>r.json());fu.innerHTML=r.ok?(r.followup.completo?'Sequência completa!':'Step avançado.'):r.error;fuVer();}catch(e){fu.innerHTML='<div class="alert-doc crit">Falha.</div>';}}
+// E7 gestor
+async function gestorCarregar(){try{const g=await fetch(api('/api/gestor')).then(r=>r.json());var html='<div class="grid"><div><b>Total:</b> '+g.gerais.total+' <b>Score médio:</b> '+Math.round(g.gerais.scoreMedio)+' <b>Ticket médio:</b> R$ '+(g.gerais.ticketMedio?Math.round(g.gerais.ticketMedio).toLocaleString('pt-BR'):'—')+'</div><div><b>Conversão:</b> '+g.gerais.taxaConversao.toFixed(1)+'% <b>Resposta média:</b> '+Math.round(g.tempoResposta.medioMinutos)+'min</div></div>';html+='<h4>Por corretor</h4>';var cr=g.porCorretor;Object.keys(cr).forEach(k=>{html+='<div>• <b>'+k+'</b>: '+cr[k].fechados+'/'+cr[k].total+' fechados ('+cr[k].taxaConversao.toFixed(0)+'%) — resposta '+Math.round(cr[k].tempoMedioResposta)+'min</div>';});html+='<h4>Por portal</h4>';var cp=g.porPortal;Object.keys(cp).forEach(k=>{html+='<div>• <b>'+k+'</b>: '+cp[k].leads+' leads / '+cp[k].total+' total — '+cp[k].taxaConversao.toFixed(0)+'% conversão</div>';});gestor.innerHTML=html;}catch(e){gestor.innerHTML='<div class="alert-doc crit">Falha ao carregar métricas.</div>';}}
+// E8 proposta
+async function propGerar(){try{const r=await fetch(api('/api/proposta'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:propId.value,config:{corretorNome:'Corretor',corretorCreci:'DF-0000',imobiliariaNome:'Imobiliária'}})}).then(r=>r.json());if(r.error){prop.innerHTML=r.error;return;}prop.innerHTML='<b>'+r.resumo+'</b><pre class="ficha">'+r.proposta+'</pre>'+(r.validacao.erros.length?'<div class="alert-doc">Erros: '+r.validacao.erros.join(', ')+'</div>':'');}catch(e){prop.innerHTML='<div class="alert-doc crit">Falha ao gerar proposta.</div>';}}
+// E9 reativação
+async function reatCarregar(){try{const r=await fetch(api('/api/reativacao')).then(r=>r.json());reat.innerHTML=r.length?r.map(x=>'<div>• <b>'+((x.lead&&x.lead.nome)||'sem nome')+'</b> — fit '+x.pontosFit+' — '+x.motivoReativacao+' <button class="btn-ghost" onclick="reatMsg(\''+x.lead.id+'\')">ver msg</button></div>').join(''):'Sem candidatos para reativação.';}catch(e){reat.innerHTML='<div class="alert-doc crit">Falha ao buscar reativação.</div>';}}
+// PWA
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
  carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
 </script>
 </body></html>

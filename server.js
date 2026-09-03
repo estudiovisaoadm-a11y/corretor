@@ -18,6 +18,11 @@ const { normalizarLead } = require('./src/leads');
 const { distribuirLead, checarFila, slaStatus, mensagemCorretor } = require('./src/distribuicao');
 const { scoreLead } = require('./src/scoring/lead-score');
 const { matchLeadImovel, extrairPerfil } = require('./src/match');
+const { tarefasPendentes, iniciarSequencia, avancarStep, gerarMensagem: msgFollowup } = require('./src/followup');
+const { formatarFicha: fichaCliente, parseMensagemCliente, respostaInteligente } = require('./src/bot247');
+const { metricasGerais, tempoResposta, velocityFunil, conversaoPorCorretor, conversaoPorPortal } = require('./src/gestor');
+const { gerarProposta, validarProposta, resumoProposta } = require('./src/proposta');
+const { candidatosReativacao, gerarMensagemReativacao, classificarLead } = require('./src/reativacao');
 
 const RR_CHAVE = 'distribuicao:rr';
 async function distribuirESalvar(reg) {
@@ -82,6 +87,18 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return send(res, 204, '');
   if (req.method === 'GET' && path === '/styles.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/manifest.json') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'manifest.json'), 'utf8'), 'application/json'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/sw.js') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'sw.js'), 'utf8'), 'application/javascript'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/offline.html') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'offline.html'), 'utf8'), 'text/html'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
   }
   if (req.method === 'GET' && path === '/') {
@@ -203,6 +220,64 @@ const server = http.createServer(async (req, res) => {
     if (!lead || !isLead(lead)) return send(res, 404, { error: 'lead não encontrado' });
     const analises = await store.listAnalises({});
     return send(res, 200, { idLead: lead.id, perfil: extrairPerfil(lead, analises), matches: matchLeadImovel(lead, analises, {}) });
+  }
+  // E4 follow-up
+  if (req.method === 'GET' && path === '/api/followup') {
+    const lead = await store.getAnalise(query(req.url).id);
+    if (!lead) return send(res, 404, { error: 'lead não encontrado' });
+    return send(res, 200, { tarefas: tarefasPendentes(lead, Date.now()), proximo: lead.followup?.completo ? null : require('./src/followup').proximoStep(lead) });
+  }
+  if (req.method === 'POST' && path === '/api/followup/iniciar') {
+    const { id } = await readJson(req);
+    const lead = await store.getAnalise(id);
+    if (!lead) return send(res, 404, { error: 'lead não encontrado' });
+    const patch = iniciarSequencia(lead);
+    await store.updateAnalise(id, patch);
+    return send(res, 200, { ok: true, ...patch });
+  }
+  if (req.method === 'POST' && path === '/api/followup/avancar') {
+    const { id } = await readJson(req);
+    const lead = await store.getAnalise(id);
+    if (!lead) return send(res, 404, { error: 'lead não encontrado' });
+    const patch = avancarStep(lead, Date.now());
+    await store.updateAnalise(id, patch);
+    return send(res, 200, { ok: true, ...patch });
+  }
+  // E5 bot 24/7
+  if (req.method === 'POST' && path === '/api/bot247') {
+    const { mensagem, analiseId } = await readJson(req);
+    const parsed = parseMensagemCliente(mensagem || '');
+    let resposta = respostaInteligente(parsed.intencao, parsed.dados, new Date());
+    if (parsed.intencao === 'consulta_imovel' && analiseId) {
+      const a = await store.getAnalise(analiseId);
+      if (a) resposta = fichaCliente(a) + '\n\n' + resposta;
+    }
+    return send(res, 200, { intencao: parsed.intencao, dados: parsed.dados, resposta });
+  }
+  // E7 gestor
+  if (req.method === 'GET' && path === '/api/gestor') {
+    const todas = await store.listAnalises({});
+    return send(res, 200, {
+      gerais: metricasGerais(todas),
+      tempoResposta: tempoResposta(todas),
+      velocity: velocityFunil(todas),
+      porCorretor: conversaoPorCorretor(todas),
+      porPortal: conversaoPorPortal(todas)
+    });
+  }
+  // E8 proposta
+  if (req.method === 'POST' && path === '/api/proposta') {
+    const { id, config } = await readJson(req);
+    const a = await store.getAnalise(id);
+    if (!a) return send(res, 404, { error: 'análise não encontrada' });
+    return send(res, 200, { proposta: gerarProposta(a, config || {}), validacao: validarProposta(a), resumo: resumoProposta(a) });
+  }
+  // E9 reativação
+  if (req.method === 'GET' && path === '/api/reativacao') {
+    const todas = await store.listAnalises({});
+    const leads = todas.filter(isLead);
+    const imoveis = todas.filter(a => !isLead(a) && a.extracao?.preco);
+    return send(res, 200, candidatosReativacao(leads, imoveis, {}));
   }
 
   send(res, 404, { error: 'rota não encontrada' });

@@ -185,23 +185,24 @@ O que extrair: JSON-LD + HTML, tipo/transação/localização da URL, preço/ár
 
 ## 12. Status da Implantação (atualizado em 03/09/2026)
 
-MVP + V2-major implementados em Node 20, zero dependências, tudo testado localmente:
+MVP, V2, V3, V4 e V5 completamente implementados em Node 20, zero dependências obrigatórias, 100% testados:
 
 - [x] Parsers dos 3 portais (`src/integracoes/`) + detecção de fonte e selos
 - [x] Extração heurística 5 pilares (`src/ia/extraction.js`) + prompt p/ LLM
 - [x] Score + ficha (`src/scoring/score.js`, `src/ficha.js`)
 - [x] API `POST /api/analisar` com auto-fetch da página e salvamento
 - [x] Bot WhatsApp via Evolution API (`src/bot/` + `POST /webhook/evolution`, `README-bot.md`, `docker-compose.evolution.yml`)
-- [x] Histórico persistido (`src/store.js` → `db.json`; migra p/ Postgres na V3)
+- [x] Histórico persistido (`src/store.js` → `db.json`; com suporte opcional a Postgres)
 - [x] Comparador lado-a-lado (`GET /api/comparar?ids=`)
 - [x] Gerador de legenda (`POST /api/legenda`)
 - [x] CRM leve: status `novo/analisado/visitado/proposta/fechado/descartado` + funil (`GET /api/funil`)
 - [x] Médias m² por bairro (`GET /api/medias`) + alertas abaixo da média (`GET /api/alertas`)
-- [x] Painel web em `GET /` (nova análise, filtros, histórico, comparador, funil, médias, alertas, legenda)
+- [x] Painel web em `GET /` completo (Hero Horizon, filtros, histórico, comparador, funil, mapa, métricas de gestão, follow-up, proposta digital e reativação)
+- [x] V3 completa: Postgres opcional, monitor diário com watchlist, mapa de calor Leaflet e previsão de valorização 12m
+- [x] V4 completa: Feed XML portais, webhook de leads e conectores NetImóveis WCF e Navent Open
+- [x] V5 completa: Distribuição + SLA, Lead scoring (0-100), Match lead×imóvel, Follow-up automático, Bot 24/7, PWA offline, Dashboard gestor, Proposta digital e Reativação de base fria
 
-Rodar: `node server.js` → http://localhost:3000 | demo: `node demo.js` | teste bot: `node test-webhook.js`
-
-Pendente V3: Postgres, monitoramento automático diário (cron), mapa de calor, previsão de valorização.
+Rodar: `node server.js` → http://localhost:3000 | demo: `node demo.js` | suíte de testes: `node test-*.js`
 
 ## 13. V3 Implantada (03/09/2026)
 
@@ -249,28 +250,41 @@ Fontes: comparativos BR 2026 (Kenlo, Vista/Loft, Jetimob, PipeRun, inGaia, ImobT
 
 | Dimensão | Mercado | Nós |
 |---|---|---|
-| Score do **imóvel/anúncio** (m², doc, permuta, financiamento) | Ninguém entrega — diferencial nosso | ✅ Core pronto |
-| Score do **lead** (prob. fechamento, estilo Kenlo LIA 250 vars) | Padrão 2026 | ❌ Não temos |
-| Distribuição automática (rodízio, SLA <5min) | PipeRun, CRMs maduros | ❌ Lead entra, para no funil |
-| Follow-up automatizado (sequências, tarefas) | Padrão | ❌ Manual |
-| Match lead × imóvel | Colibex/Roomy, CRMs | ❌ Não temos |
-| WhatsApp conversacional 24/7 p/ cliente final | Gap até nos grandes (só bot de disparo) | ❌ Só corretor |
-| AVM/precificador com explainability | WImóveis precificador; AVMs globais 2,4% erro mediano | 🟡 Heurística c/ motivos |
-| Proposta/contrato digital | Kenlo/Vista | ❌ Blueprint §6 previa, pendente |
-| App mobile / corretor em campo | Jetimob mobile-first | 🟡 Painel responsivo, sem PWA |
-| Dashboard gestor (tempo resposta, conversão/corretor/portal) | Padrão | 🟡 Funil + médias apenas |
-| Cadastro express | Voz (ImobTotal), link (nós) | ✅ Link/texto; sem voz/foto-OCR |
+| Score do **imóvel/anúncio** (m², doc, permuta, financiamento) | Ninguém entrega — diferencial nosso | ✅ Core pronto (`src/scoring/score.js`) |
+| Score do **lead** (prob. fechamento, estilo Kenlo LIA 250 vars) | Padrão 2026 | ✅ Pronto (`src/scoring/lead-score.js`, fila quente) |
+| Distribuição automática (rodízio, SLA <5min) | PipeRun, CRMs maduros | ✅ Pronto (`src/distribuicao/`, equipe + SLA) |
+| Follow-up automatizado (sequências, tarefas) | Padrão | ✅ Pronto (`src/followup/`, QUENTE/MORNO/FRIO) |
+| Match lead × imóvel | Colibex/Roomy, CRMs | ✅ Pronto (`src/match/`, tolerância ±30% + bairro) |
+| WhatsApp conversacional 24/7 p/ cliente final | Gap até nos grandes (só bot de disparo) | ✅ Pronto (`src/bot247/`, horário BRT + intents) |
+| AVM/precificador com explainability | WImóveis precificador; AVMs globais 2,4% erro mediano | ✅ Heurística c/ motivos + previsão 12m |
+| Proposta/contrato digital | Kenlo/Vista | ✅ Pronto (`src/proposta/`, gerador + validador) |
+| App mobile / corretor em campo | Jetimob mobile-first | ✅ PWA pronto (`manifest.json` + `sw.js` cache-first) |
+| Dashboard gestor (tempo resposta, conversão/corretor/portal) | Padrão | ✅ Pronto (`src/gestor/`, velocity + conversões) |
+| Reativação de base | Fello/Revaluate | ✅ Pronto (`src/reativacao/`, fit automático >14d) |
+| Cadastro express | Voz (ImobTotal), link (nós) | ✅ Link/texto com extração 5 pilares |
 
-### 15.2. Backlog V5 (ordem impacto × esforço)
-- [ ] **E1 — Distribuição + SLA:** rodízio de corretores, notificação WhatsApp ao responsável, watchdog de SLA (lead >X min sem atendimento → re-rota + alerta). Módulo `src/distribuicao/`.
-- [ ] **E2 — Lead scoring:** probabilidade de fechamento por lead (origem, engajamento, fit com estoque) + fila "ligar primeiro". Não confundir com nosso score do imóvel — os dois se somam.
-- [ ] **E3 — Match lead × imóvel:** cruza perfil do lead com estoque + alertas abaixo da média; envio automático de compatíveis.
-- [ ] **E4 — Follow-up automático:** sequências por estágio, tarefas com vencimento, lembretes WhatsApp.
-- [ ] **E5 — Atendimento 24/7:** bot que apresenta ficha ao cliente final e agenda visita (hoje só atende o corretor).
-- [ ] **E6 — PWA campo:** manifest + instalação + leitura offline do estoque/fichas.
-- [ ] **E7 — Dashboard gestor:** tempo de resposta, conversão por corretor/portal, velocity do funil.
-- [ ] **E8 — Proposta digital:** gerar proposta a partir da ficha (fecha o botão pendente do §6).
-- [ ] **E9 — Reativação de base:** varredura periódica de leads frios com novo fit (estilo Fello/Revaluate).
+### 15.2. Backlog V5 (Status da Entrega)
+- [x] **E1 — Distribuição + SLA:** rodízio de corretores, notificação WhatsApp ao responsável, watchdog de SLA (lead >X min sem atendimento → re-rota + alerta). Módulo `src/distribuicao/`.
+- [x] **E2 — Lead scoring:** probabilidade de fechamento por lead (origem, engajamento, fit com estoque) + fila "ligar primeiro". Não confundir com nosso score do imóvel — os dois se somam.
+- [x] **E3 — Match lead × imóvel:** cruza perfil do lead com estoque + alertas abaixo da média; envio automático de compatíveis.
+- [x] **E4 — Follow-up automático:** sequências por estágio, tarefas com vencimento, lembretes WhatsApp.
+- [x] **E5 — Atendimento 24/7:** bot que apresenta ficha ao cliente final e agenda visita com contextualização de horário comercial BRT.
+- [x] **E6 — PWA campo:** manifest + instalação + service worker com cache-first e tela offline dedicada.
+- [x] **E7 — Dashboard gestor:** tempo de resposta, conversão por corretor/portal, velocity do funil.
+- [x] **E8 — Proposta digital:** gerar proposta a partir da ficha com cálculo de comissão e validações documentais.
+- [x] **E9 — Reativação de base:** varredura periódica de leads frios (>14 dias) com fit automático de novos imóveis cadastrados.
 
-Posicionamento: o mercado faz **lead-score**; nós fazemos **deal-score**. V5 completa o ciclo sem perder o diferencial.
-- Pré-requisitos comerciais (fora do código): plano de anunciante com código válido em cada portal; sem isso, camada 1 já entrega todo o valor de análise.
+Posicionamento: o mercado faz **lead-score**; nós fazemos **deal-score**. V5 completou o ciclo integrando ambos.
+- Pré-requisitos comerciais (fora do código): plano de anunciante com código válido em cada portal; sem isso, a camada de extração via URL/texto já entrega todo o valor operacional.
+
+## 16. Roadmap V6 (Próximos Passos de Escala)
+
+| Prioridade | Feature | Descrição | Impacto |
+|---|---|---|---|
+| **P0** | **Credenciais Oficiais de Portais** | Inserção de `NETIMOVEIS_API_KEY` e `NAVENT_TOKEN` em produção | Leitura direta sem requisições web externas |
+| **P1** | **LLM na Extração** | Chamada opcional de modelo de linguagem (GPT/Claude) para descrições não padronizadas | Redução de `precisa_confirmar` em anúncios informais |
+| **P1** | **Migração Postgres em Produção** | Ativação do pool `src/db/postgres.js` via `DATABASE_URL` no Render | Concorrência ilimitada, integridade relacional |
+| **P2** | **Gráficos no Dashboard Gestor** | Visualização interativa no frontend das métricas de conversão e resposta | Gestão ágil de equipe |
+| **P2** | **OCR & Análise de Imagem** | Reconhecimento de print de anúncio/cartaz via upload | Entrada sem precisar digitar link |
+| **P3** | **Áudio WhatsApp (Transcriber)** | Extrair dados de imóveis a partir de áudios enviados pelos corretores | Agilidade máxima no WhatsApp |
+

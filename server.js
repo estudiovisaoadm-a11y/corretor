@@ -282,6 +282,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   send(res, 404, { error: 'rota não encontrada' });
+} catch (err) {
+  console.error('Erro na requisição:', err);
+  send(res, 500, { error: 'erro interno do servidor', message: err?.message || 'erro desconhecido' });
+}
 });
 
 const PORT = process.env.PORT || 3000;

@@ -6,33 +6,45 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD em .env}
       POSTGRES_DB: evolution
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   evolution:
-    image: evoapicloud/evolution-api:latest
+    image: ${EVOLUTION_IMAGE:?defina uma imagem da Evolution com versão pinada}
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       SERVER_PORT: 8080
-      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:-troque-esta-chave}
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:?defina EVOLUTION_API_KEY em .env}
       DATABASE_PROVIDER: postgresql
-      DATABASE_CONNECTION_URI: postgresql://postgres:postgres@postgres:5432/evolution?schema=public
+      DATABASE_CONNECTION_URI: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/evolution?schema=public
       REDIS_URI: redis://redis:6379
       # Webhook global apontando para este MVP (troque pela URL pública via ngrok/túnel):
       # WEBHOOK_GLOBAL_URL: https://SEU-DOMINIO/webhook/evolution
       # WEBHOOK_GLOBAL_ENABLED: "true"
       # WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   pgdata:

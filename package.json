@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "demo": "node demo.js",
+    "test": "node --test test-*.js",
     "test:bot": "node test-webhook.js",
-    "test:security": "node --test test-fetch-anuncio.js"
+    "test:security": "node --test test-fetch-anuncio.js test-security.js"
   },
   "engines": {
     "node": ">=20"

@@ -17,6 +17,13 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  const requestUrl = new URL(e.request.url);
+  if (requestUrl.pathname.startsWith('/api/')) {
+    e.respondWith(fetch(e.request).catch(() => new Response(JSON.stringify({ error: 'offline' }), {
+      status: 503, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    })));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;

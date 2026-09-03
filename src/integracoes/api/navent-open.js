@@ -72,8 +72,8 @@
 const { analisar } = require('../../ficha');
 
 const BASES = {
-  production: 'http://api-br.open.navent.com',
-  sandbox: 'http://api-br.sandbox.open.navent.com',
+  production: 'https://api-br.open.navent.com',
+  sandbox: 'https://api-br.sandbox.open.navent.com',
 };
 const USER_AGENT = 'navent-open-node (sistema-ia-imoveis)';
 
@@ -81,6 +81,7 @@ const USER_AGENT = 'navent-open-node (sistema-ia-imoveis)';
 function getConfig() {
   const env = String(process.env.NAVENT_ENV || 'sandbox').toLowerCase().trim();
   const baseRaw = (process.env.NAVENT_BASE_URL || BASES[env] || BASES.sandbox).replace(/\/+$/, '');
+  if (!baseRaw.startsWith('https://')) throw new Error('NAVENT_BASE_URL deve usar HTTPS');
   const baseUrl = /\/v1$/.test(baseRaw) ? baseRaw : `${baseRaw}/v1`;
   return {
     token: process.env.NAVENT_TOKEN || '',

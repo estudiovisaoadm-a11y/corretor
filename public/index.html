@@ -11,7 +11,7 @@
 <p class="hero-sub">Capture um anúncio, entenda o potencial e transforme a próxima decisão em negócio — do primeiro link ao fechamento.</p>
 <div class="hero-journey" aria-label="Jornada do corretor"><span class="journey-step active"><b>01</b> Capturar</span><i></i><span class="journey-step"><b>02</b> Entender</span><i></i><span class="journey-step"><b>03</b> Agir</span></div>
 <div class="hero-stats"><div class="hstat"><b>0–100</b><span>score da IA</span></div><div class="hstat"><b>R$/m²</b><span>por bairro</span></div><div class="hstat"><b>Docs</b><span>verificados</span></div><div class="hstat"><b>24h</b><span>monitor ativo</span></div></div>
-<span class="cfg">Backend: <input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"> <button onclick="setApi()">usar</button></span>
+<span class="cfg">Backend: <input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"> <button onclick="setApi()">usar</button><br>Chave: <input id="apiKey" type="password" autocomplete="off" placeholder="ADMIN_API_KEY (opcional no desenvolvimento)"></span>
 </div><div class="hero-photo" aria-hidden="true"><div class="hero-photo-card"><span class="hero-price">Ap 70m² • R$ 550 mil</span><span class="hero-score">82 • Ótima</span></div></div></div>
 </div></header>
 <nav class="app-nav" aria-label="Navegação principal">
@@ -253,7 +253,16 @@
 <script>
 // API_BASE: ?api= na URL (salva) > localStorage > mesma origem. Permite hospedar este HTML em PHP/HTML estático.
 var API_BASE=(new URLSearchParams(location.search).get('api')||localStorage.getItem('corretor_api')||'').replace(/\/$/,'');
+var API_KEY=sessionStorage.getItem('corretor_api_key')||'';
 if(new URLSearchParams(location.search).get('api'))localStorage.setItem('corretor_api',API_BASE);
+var nativeFetch=window.fetch.bind(window);
+window.fetch=function(input,init){
+  init=init||{};
+  var target=typeof input==='string'?input:input.url;
+  var sameApi=target.indexOf('/api/')===0 || (API_BASE && target.indexOf(API_BASE+'/api/')===0);
+  if(API_KEY && sameApi){init.headers=Object.assign({},init.headers||{}, {'X-API-Key':API_KEY});}
+  return nativeFetch(input,init);
+};
 function setArea(area,move){
   document.querySelectorAll('.area-panel').forEach(function(el){el.classList.toggle('is-active',el.dataset.area===area);});
   var diff=document.querySelector('.diff-strip'); if(diff)diff.style.display=area==='inicio'?'grid':'none';
@@ -263,8 +272,9 @@ function setArea(area,move){
   });
   if(move!==false)window.scrollTo({top:document.querySelector('.app-nav').offsetTop-12,behavior:'smooth'});
 }
-function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');localStorage.setItem('corretor_api',v);location.reload();}
+function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');var k=document.getElementById('apiKey').value.trim();localStorage.setItem('corretor_api',v);if(k)sessionStorage.setItem('corretor_api_key',k);else sessionStorage.removeItem('corretor_api_key');location.reload();}
 document.getElementById('apiBase').value=API_BASE;
+document.getElementById('apiKey').value=API_KEY;
 setArea('inicio',false);
 function api(p){return API_BASE+p;}
 function escapeHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}

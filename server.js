@@ -23,6 +23,7 @@ const { formatarFicha: fichaCliente, parseMensagemCliente, respostaInteligente }
 const { metricasGerais, tempoResposta, velocityFunil, conversaoPorCorretor, conversaoPorPortal } = require('./src/gestor');
 const { gerarProposta, validarProposta, resumoProposta } = require('./src/proposta');
 const { candidatosReativacao, gerarMensagemReativacao, classificarLead } = require('./src/reativacao');
+const { applySecurityHeaders, isAuthorized, rateLimit, readJson, verifyWebhook, idempotencyKey, MAX_BODY_BYTES } = require('./src/security');
 
 const RR_CHAVE = 'distribuicao:rr';
 async function distribuirESalvar(reg) {
@@ -58,14 +59,12 @@ const STATUS_VALIDOS = ['novo', 'analisado', 'visitado', 'proposta', 'fechado', 
 
 function send(res, code, obj, type = 'application/json') {
   const body = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
-  res.writeHead(code, { 'Content-Type': `${type}; charset=utf-8`, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': '*', 'Access-Control-Allow-Headers': '*' });
+  applySecurityHeaders(res, res.req?.headers?.origin);
+  res.setHeader('Content-Type', type + '; charset=utf-8');
+  if (type === 'application/json') res.setHeader('Cache-Control', 'no-store');
+  if (type === 'text/html') res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://unpkg.com https://cdn-icons-png.flaticon.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'");
+  res.writeHead(code);
   res.end(body);
-}
-async function readJson(req) {
-  let raw = '';
-  for await (const c of req) raw += c;
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return { _raw: raw }; }
 }
 function query(url) {
   const i = url.indexOf('?');
@@ -85,7 +84,12 @@ function painelHtml() {
 const server = http.createServer(async (req, res) => {
   try {
     const path = req.url.split('?')[0];
+    if (Number(req.headers['content-length'] || 0) > MAX_BODY_BYTES) return send(res, 413, { error: 'payload muito grande' });
+    if (!rateLimit(req)) return send(res, 429, { error: 'limite de requisições excedido' });
     if (req.method === 'OPTIONS') return send(res, 204, '');
+    if (path === '/healthz' && req.method === 'GET') return send(res, 200, { ok: true });
+    if (path === '/readyz' && req.method === 'GET') return send(res, 200, { ok: true, backend: store.backend });
+    if (path.startsWith('/api/') && !isAuthorized(req)) return send(res, 401, { error: 'autenticação necessária' });
   if (req.method === 'GET' && path === '/styles.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
@@ -148,14 +152,22 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && path === '/webhook/evolution') {
     const body = await readJson(req);
+    const rawBody = body && body.__rawBody || '';
+    if (!verifyWebhook(req, rawBody)) return send(res, 401, { error: 'assinatura inválida' });
+    const eventKey = idempotencyKey(req, rawBody);
+    if (await store.metaGet('webhook:' + eventKey)) return send(res, 200, { ok: true, duplicate: true });
     const evento = body?.event || body?.type || '';
-    if (evento && !String(evento).toUpperCase().includes('MESSAGES')) return send(res, 200, { ignored: true, evento });
+    if (evento && !String(evento).toUpperCase().includes('MESSAGES')) {
+      await store.metaSet('webhook:' + eventKey, { recebidoEm: new Date().toISOString() });
+      return send(res, 200, { ignored: true, evento });
+    }
     const out = await handleIncoming(body, fetchTextoAnuncio);
     if (out.ignored) return send(res, 200, { ignored: true });
     if (out.analise) await store.addAnalise({ ...out.analise, origem: 'whatsapp', whatsapp: out.number });
     for (const reply of out.replies) {
       try { await sendText(out.number, reply); } catch (e) { console.error('falha ao enviar WhatsApp:', e.message); }
     }
+    await store.metaSet('webhook:' + eventKey, { recebidoEm: new Date().toISOString() });
     return send(res, 200, { ok: true, number: out.number, score: out.analise?.score, veredito: out.analise?.veredito });
   }
 
@@ -189,9 +201,14 @@ const server = http.createServer(async (req, res) => {
     const PORTAIS_VALIDOS = ['dfimoveis', 'wimoveis', 'netimoveis', 'zap', 'vivareal', 'olx'];
     if (!PORTAIS_VALIDOS.includes(portal)) return send(res, 400, { error: 'portal inválido: ' + PORTAIS_VALIDOS.join(',') });
     const payload = await readJson(req);
+    const rawBody = payload && payload.__rawBody || '';
+    if (!verifyWebhook(req, rawBody, portal)) return send(res, 401, { error: 'assinatura inválida' });
+    const eventKey = idempotencyKey(req, rawBody, portal);
+    if (await store.metaGet('webhook:' + eventKey)) return send(res, 200, { ok: true, duplicate: true });
     const reg = normalizarLead(portal, payload);
     if (reg.error) return send(res, 400, { error: reg.error });
     const { saved, dist } = await distribuirESalvar(reg);
+    await store.metaSet('webhook:' + eventKey, { recebidoEm: new Date().toISOString() });
     return send(res, 200, { ok: true, id: saved.id, corretor: dist.corretorNome || null });
   }
   // E1 equipe
@@ -284,7 +301,7 @@ const server = http.createServer(async (req, res) => {
   send(res, 404, { error: 'rota não encontrada' });
 } catch (err) {
   console.error('Erro na requisição:', err);
-  send(res, 500, { error: 'erro interno do servidor', message: err?.message || 'erro desconhecido' });
+  send(res, err.statusCode || 500, { error: err.statusCode === 413 ? 'payload muito grande' : 'erro interno do servidor' });
 }
 });
 

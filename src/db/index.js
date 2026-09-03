@@ -6,7 +6,11 @@ if (process.env.DATABASE_URL) {
     impl = require('./postgres');
     console.log('Banco: postgres');
   } catch (e) {
-    console.error('Falha ao carregar pg, usando JSON:', e.message);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Falha ao carregar Postgres; produção não inicia sem banco configurado.');
+      throw e;
+    }
+    console.error('Falha ao carregar pg, usando JSON apenas em desenvolvimento:', e.message);
     impl = require('../store');
   }
 } else {

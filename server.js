@@ -61,7 +61,11 @@ function send(res, code, obj, type = 'application/json') {
   const body = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
   applySecurityHeaders(res, res.req?.headers?.origin);
   res.setHeader('Content-Type', type + '; charset=utf-8');
-  if (type === 'application/json') res.setHeader('Cache-Control', 'no-store');
+  if (type === 'application/json' || type === 'text/html' || type === 'application/javascript') {
+    res.setHeader('Cache-Control', 'no-store');
+  } else if (type === 'text/css') {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  }
   if (type === 'text/html') {
     res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn-icons-png.flaticon.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com https://images.unsplash.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'`);
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ia-moveis-v3';
+const CACHE_NAME = 'ia-moveis-v4';
 const PRECACHE = ['/', '/styles.css', '/landing.css', '/landing.js', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -24,6 +24,26 @@ self.addEventListener('fetch', (e) => {
     })));
     return;
   }
+
+  // HTML and executable assets must always validate against the server first.
+  // The cache is only a fallback, so a new deploy cannot be hidden by an old SW.
+  const networkFirst = e.request.mode === 'navigate'
+    || ['style', 'script'].includes(e.request.destination);
+  if (networkFirst) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        if (resp && resp.status === 200 && resp.type === 'basic' && e.request.destination !== 'document') {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      }).catch(() => e.request.mode === 'navigate'
+        ? caches.match('/').then(cached => cached || new Response('Offline', { status: 503 }))
+        : caches.match(e.request))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;

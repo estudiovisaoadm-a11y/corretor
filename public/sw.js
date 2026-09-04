@@ -1,5 +1,5 @@
-const CACHE_NAME = 'ia-moveis-v1';
-const PRECACHE = ['/', '/styles.css', '/manifest.json'];
+const CACHE_NAME = 'ia-moveis-v3';
+const PRECACHE = ['/', '/styles.css', '/landing.css', '/landing.js', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(PRECACHE)));

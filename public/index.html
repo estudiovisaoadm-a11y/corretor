@@ -1,7 +1,7 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IA Imóveis — Painel</title>
 <link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1A120B">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260904-mobile">
 </head><body>
 <header class="hero"><div class="hero-inner">
 <div class="hero-top"><div class="brand"><span class="brand-mark"><img src="https://cdn-icons-png.flaticon.com/512/6793/6793457.png" alt="home" class="fi" width="20" height="20"></span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
@@ -11,15 +11,11 @@
 <p class="hero-sub">Capture um anúncio, entenda o potencial e transforme a próxima decisão em negócio — do primeiro link ao fechamento.</p>
 <div class="hero-journey" aria-label="Jornada do corretor"><span class="journey-step active"><b>01</b> Capturar</span><i></i><span class="journey-step"><b>02</b> Entender</span><i></i><span class="journey-step"><b>03</b> Agir</span></div>
 <div class="hero-stats"><div class="hstat"><b>0–100</b><span>score da IA</span></div><div class="hstat"><b>R$/m²</b><span>por bairro</span></div><div class="hstat"><b>Docs</b><span>verificados</span></div><div class="hstat"><b>24h</b><span>monitor ativo</span></div></div>
-<div class="cfg">
-  <label for="apiBase">Backend</label><input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"><button onclick="setApi()">usar</button>
-  <label for="apiKey">Chave</label><input id="apiKey" type="password" autocomplete="off" placeholder="ADMIN_API_KEY (opcional no desenvolvimento)">
-</div>
-</div><div class="hero-photo" aria-hidden="true">
-  <div class="signal-island"><i></i> Radar ativo</div>
-  <div class="hero-score-ring"><b>82</b><span>deal score</span></div>
-  <div class="property-lines"><span></span><span></span><span></span></div>
-  <div class="hero-photo-card"><span class="hero-price"><small>Melhor oportunidade</small>Ap 70m² • R$ 550 mil</span><span class="hero-score">Ótima</span></div>
+</div><div class="hero-photo radar-card" aria-hidden="true">
+  <div class="radar-topline"><span><i></i> Live scan</span><b>Brasília / DF</b></div>
+  <div class="radar-scope" aria-hidden="true"><div class="radar-ring ring-a"></div><div class="radar-ring ring-b"></div><div class="radar-ring ring-c"></div><div class="radar-axis axis-x"></div><div class="radar-axis axis-y"></div><div class="radar-sweep"></div><span class="radar-blip blip-a">⌂</span><span class="radar-blip blip-b">⌂</span><span class="radar-blip blip-c">⌂</span><span class="radar-blip blip-d">⌂</span></div>
+  <div class="radar-feed"><div class="radar-feed-item"><span class="radar-pulse"></span><div><b>Casa contemporânea</b><small>Lago Sul · 420 m²</small></div><strong>R$ 4,8 mi</strong></div><div class="radar-feed-item"><span class="radar-pulse"></span><div><b>Residência com jardim</b><small>Park Way · 310 m²</small></div><strong>R$ 3,2 mi</strong></div></div>
+  <div class="opportunity-rise"><small>Oportunidade detectada</small><strong>+12,4%</strong><span>abaixo da média · 420 m²</span></div>
 </div></div>
 </div></header>
 <nav class="app-nav" aria-label="Navegação principal">
@@ -258,6 +254,14 @@
 </section>
 <section class="diff-strip" aria-label="Diferenciais"><div class="diff"><span class="diff-ico"><img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="checkmark" class="fi" width="20" height="20"></span><div><b>Score auditável</b><p>Nota 0–100 com veredito e selo documental sempre visíveis.</p></div></div><div class="diff"><span class="diff-ico">◉</span><div><b>Preço por bairro</b><p>Médias locais e alertas abaixo da média em tempo real.</p></div></div><div class="diff"><span class="diff-ico"><img src="https://cdn-icons-png.flaticon.com/512/6793/6793457.png" alt="home" class="fi" width="20" height="20"></span><div><b>Do link ao CRM</b><p>Analise, compare, gere legenda e acompanhe o funil.</p></div></div></section>
 </main>
+<footer class="dashboard-footer"><span>IA Imóveis <i></i> Radar imobiliário operacional</span><button class="settings-trigger" id="settingsToggle" type="button" aria-expanded="false" aria-controls="settingsPanel" onclick="toggleSettings()"><span aria-hidden="true">⚙</span> Configurações</button></footer>
+<div class="settings-panel" id="settingsPanel" hidden role="dialog" aria-labelledby="settingsTitle">
+  <div class="settings-panel-card">
+    <div class="settings-panel-head"><div><span class="section-kicker">Preferências de conexão</span><h3 id="settingsTitle">Configurar ambiente</h3></div><button class="settings-close" type="button" aria-label="Fechar configurações" onclick="toggleSettings(false)">×</button></div>
+    <p class="settings-help">Defina o backend e a chave de acesso usados pelo dashboard neste dispositivo.</p>
+    <div class="settings-form"><label for="apiBase">Backend</label><div class="settings-field"><input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"><small>URL da API</small></div><button class="btn-primary settings-save" onclick="setApi()">Salvar</button><label for="apiKey">Chave</label><div class="settings-field"><input id="apiKey" type="password" autocomplete="off" placeholder="ADMIN_API_KEY (opcional no desenvolvimento)"><small>Armazenada somente nesta sessão</small></div></div>
+  </div>
+</div>
 <script>
 // API_BASE: ?api= na URL (salva) > localStorage > mesma origem. Permite hospedar este HTML em PHP/HTML estático.
 var API_BASE=(new URLSearchParams(location.search).get('api')||localStorage.getItem('corretor_api')||'').replace(/\/$/,'');
@@ -281,6 +285,8 @@ function setArea(area,move){
   if(move!==false)window.scrollTo({top:document.querySelector('.app-nav').offsetTop-12,behavior:'smooth'});
 }
 function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');var k=document.getElementById('apiKey').value.trim();localStorage.setItem('corretor_api',v);if(k)sessionStorage.setItem('corretor_api_key',k);else sessionStorage.removeItem('corretor_api_key');location.reload();}
+function toggleSettings(open){var panel=document.getElementById('settingsPanel'),button=document.getElementById('settingsToggle');if(open===undefined)open=panel.hidden;panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)window.setTimeout(function(){document.getElementById('apiBase').focus();},0);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.getElementById('settingsPanel').hidden)toggleSettings(false);});
 document.getElementById('apiBase').value=API_BASE;
 document.getElementById('apiKey').value=API_KEY;
 setArea('inicio',false);

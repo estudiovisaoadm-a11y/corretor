@@ -21,12 +21,12 @@
 <nav class="app-nav" aria-label="Navegação principal">
   <div class="app-nav-inner">
     <span class="nav-label">Operação</span>
-    <button class="nav-item active" data-area="inicio" onclick="setArea('inicio')"><span>⌂</span> Início</button>
-    <button class="nav-item" data-area="imoveis" onclick="setArea('imoveis')"><span>◈</span> Imóveis</button>
-    <button class="nav-item" data-area="mercado" onclick="setArea('mercado')"><span>⌁</span> Mercado</button>
-    <button class="nav-item" data-area="crm" onclick="setArea('crm')"><span>◎</span> CRM</button>
+    <button type="button" class="nav-item active" data-area="inicio" onclick="setArea('inicio')"><span>⌂</span> Início</button>
+    <button type="button" class="nav-item" data-area="imoveis" onclick="setArea('imoveis')"><span>◈</span> Imóveis</button>
+    <button type="button" class="nav-item" data-area="mercado" onclick="setArea('mercado')"><span>⌁</span> Mercado</button>
+    <button type="button" class="nav-item" data-area="crm" onclick="setArea('crm')"><span>◎</span> CRM</button>
     <span class="nav-divider"></span>
-    <button class="nav-item" data-area="gestao" onclick="setArea('gestao')"><span>▦</span> Gestão</button>
+    <button type="button" class="nav-item" data-area="gestao" onclick="setArea('gestao')"><span>▦</span> Gestão</button>
   </div>
 </nav>
 <main>
@@ -275,21 +275,34 @@ window.fetch=function(input,init){
   if(API_KEY && sameApi){init.headers=Object.assign({},init.headers||{}, {'X-API-Key':API_KEY});}
   return nativeFetch(input,init);
 };
-function setArea(area,move){
+function setArea(area,move,replace){
+  var allowed=['inicio','imoveis','mercado','crm','gestao'];
+  if(allowed.indexOf(area)<0)area='inicio';
   document.querySelectorAll('.area-panel').forEach(function(el){el.classList.toggle('is-active',el.dataset.area===area);});
   var diff=document.querySelector('.diff-strip'); if(diff)diff.style.display=area==='inicio'?'grid':'none';
   document.querySelectorAll('.nav-item').forEach(function(el){
     var active=el.dataset.area===area; el.classList.toggle('active',active);
     if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
-  if(move!==false)window.scrollTo({top:document.querySelector('.app-nav').offsetTop-12,behavior:'smooth'});
+  document.documentElement.dataset.dashboardArea=area;
+  if(location.hash.slice(1)!==area){
+    var method=replace?'replaceState':'pushState';
+    history[method]({area:area},'',location.pathname+location.search+'#'+area);
+  }
+  if(move!==false){
+    var main=document.querySelector('main');
+    var top=main?Math.max(0,main.getBoundingClientRect().top+window.scrollY-18):0;
+    window.scrollTo({top:top,behavior:'smooth'});
+  }
 }
 function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');var k=document.getElementById('apiKey').value.trim();localStorage.setItem('corretor_api',v);if(k)sessionStorage.setItem('corretor_api_key',k);else sessionStorage.removeItem('corretor_api_key');location.reload();}
 function toggleSettings(open){var panel=document.getElementById('settingsPanel'),button=document.getElementById('settingsToggle');if(open===undefined)open=panel.hidden;panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)window.setTimeout(function(){document.getElementById('apiBase').focus();},0);}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.getElementById('settingsPanel').hidden)toggleSettings(false);});
 document.getElementById('apiBase').value=API_BASE;
 document.getElementById('apiKey').value=API_KEY;
-setArea('inicio',false);
+window.addEventListener('hashchange',function(){setArea(location.hash.slice(1)||'inicio',true,true);});
+window.addEventListener('popstate',function(e){setArea((e.state&&e.state.area)||location.hash.slice(1)||'inicio',true,true);});
+setArea(location.hash.slice(1)||'inicio',false,true);
 function api(p){return API_BASE+p;}
 function escapeHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function faixaCls(s){return s>=80?'score-otimo':s>=60?'score-bom':s>=40?'score-regular':'score-risco';}
@@ -558,7 +571,7 @@ async function reatCarregar(){
 }
 
 // PWA
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260904-menu').catch(function(){});}
 carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
 </script>
 </body></html>

@@ -73,8 +73,9 @@ body {
 /* Jornada: o painel revela uma decisão por vez, sem misturar operação e gestão. */
 .area-panel { display: none; }
 .area-panel.is-active { display: block; animation: area-in .28s ease-out both; }
-main > .grid { display: none; }
-main > .grid:has(> .area-panel.is-active) { display: grid; }
+/* A grade principal permanece montada; cada painel interno controla sua própria visibilidade.
+   Isso mantém o menu compatível com navegadores mobile sem depender de :has(). */
+main > .grid { display: grid; }
 @keyframes area-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 .app-nav {

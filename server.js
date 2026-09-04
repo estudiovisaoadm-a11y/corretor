@@ -1,5 +1,6 @@
 // Servidor completo — zero dependências. Painel + API + webhook WhatsApp + CRM leve.
 const http = require('http');
+const crypto = require('crypto');
 const fs = require('fs');
 const pathMod = require('path');
 const { analisar, fichaMarkdown } = require('./src/ficha');
@@ -62,7 +63,12 @@ function send(res, code, obj, type = 'application/json') {
   applySecurityHeaders(res, res.req?.headers?.origin);
   res.setHeader('Content-Type', type + '; charset=utf-8');
   if (type === 'application/json') res.setHeader('Cache-Control', 'no-store');
-  if (type === 'text/html') res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://unpkg.com https://cdn-icons-png.flaticon.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'");
+  if (type === 'text/html') {
+    const inlineHashes = [...body.matchAll(/<script>([\s\S]*?)<\/script>/gi)]
+      .map((match) => `'sha256-${crypto.createHash('sha256').update(match[1]).digest('base64')}'`)
+      .join(' ');
+    res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self' https://unpkg.com https://cdn-icons-png.flaticon.com; script-src-elem 'self' ${inlineHashes} https://unpkg.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'`);
+  }
   res.writeHead(code);
   res.end(body);
 }

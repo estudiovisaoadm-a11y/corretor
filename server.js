@@ -67,7 +67,7 @@ function send(res, code, obj, type = 'application/json') {
     const inlineHashes = [...body.matchAll(/<script>([\s\S]*?)<\/script>/gi)]
       .map((match) => `'sha256-${crypto.createHash('sha256').update(match[1]).digest('base64')}'`)
       .join(' ');
-    res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self' https://unpkg.com https://cdn-icons-png.flaticon.com; script-src-elem 'self' ${inlineHashes} https://unpkg.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'`);
+    res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self' https://unpkg.com https://cdn-icons-png.flaticon.com; script-src-elem 'self' ${inlineHashes} https://unpkg.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://cdn-icons-png.flaticon.com https://images.unsplash.com; connect-src 'self' https: http://localhost:*; frame-ancestors 'none'`);
   }
   res.writeHead(code);
   res.end(body);
@@ -86,6 +86,9 @@ function query(url) {
 function painelHtml() {
   return fs.readFileSync(pathMod.join(__dirname, 'public', 'index.html'), 'utf8');
 }
+function landingHtml() {
+  return fs.readFileSync(pathMod.join(__dirname, 'public', 'landing.html'), 'utf8');
+}
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -98,6 +101,14 @@ const server = http.createServer(async (req, res) => {
     if (path.startsWith('/api/') && !isAuthorized(req)) return send(res, 401, { error: 'autenticação necessária' });
   if (req.method === 'GET' && path === '/styles.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/landing.css') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'landing.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/landing.js') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'landing.js'), 'utf8'), 'application/javascript'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
   }
   if (req.method === 'GET' && path === '/manifest.json') {
@@ -113,6 +124,10 @@ const server = http.createServer(async (req, res) => {
     catch { return send(res, 404, { error: 'não encontrado' }); }
   }
   if (req.method === 'GET' && path === '/') {
+    try { return send(res, 200, landingHtml(), 'text/html'); }
+    catch { return send(res, 500, { error: 'frontend não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/dashboard') {
     try { return send(res, 200, painelHtml(), 'text/html'); }
     catch { return send(res, 500, { error: 'frontend não encontrado' }); }
   }

@@ -27,6 +27,10 @@ const { candidatosReativacao, gerarMensagemReativacao, classificarLead } = requi
 const { applySecurityHeaders, isAuthorized, rateLimit, readJson, verifyWebhook, idempotencyKey, MAX_BODY_BYTES } = require('./src/security');
 const { hashPassword, login, authenticate } = require('./src/auth');
 const { PersistentQueue } = require('./src/jobs/queue');
+const { assertConfig, publicConfig } = require('./src/config');
+const { safeError, log } = require('./src/logger');
+
+assertConfig();
 
 const RR_CHAVE = 'distribuicao:rr';
 const { buildOverview } = require('./src/dashboard');
@@ -102,12 +106,17 @@ function landingHtml() {
 
 const server = http.createServer(async (req, res) => {
   try {
+    const requestId = String(req.headers['x-request-id'] || '').slice(0, 80) || require('crypto').randomUUID();
+    res.setHeader('X-Request-Id', requestId);
     const path = req.url.split('?')[0];
     if (Number(req.headers['content-length'] || 0) > MAX_BODY_BYTES) return send(res, 413, { error: 'payload muito grande' });
     if (!rateLimit(req)) return send(res, 429, { error: 'limite de requisições excedido' });
     if (req.method === 'OPTIONS') return send(res, 204, '');
     if (path === '/healthz' && req.method === 'GET') return send(res, 200, { ok: true });
-    if (path === '/readyz' && req.method === 'GET') return send(res, 200, { ok: true, backend: store.backend });
+    if (path === '/readyz' && req.method === 'GET') {
+      try { await store.healthcheck(); return send(res, 200, { ok: true, backend: store.backend, ...publicConfig() }); }
+      catch (error) { log('error', 'readiness check failed', { requestId, error: safeError(error) }); return send(res, 503, { ok: false, backend: store.backend, error: 'dependência indisponível' }); }
+    }
     if (req.method === 'POST' && path === '/api/auth/login') {
       const input = await readJson(req);
       if (!input.email || !input.password) return send(res, 400, { error: 'email e senha são obrigatórios' });
@@ -370,7 +379,7 @@ const server = http.createServer(async (req, res) => {
 
   send(res, 404, { error: 'rota não encontrada' });
 } catch (err) {
-  console.error('Erro na requisição:', err);
+  log('error', 'request failed', { requestId: res.getHeader('X-Request-Id') || req.headers['x-request-id'], error: safeError(err), path: req.url, method: req.method });
   send(res, err.statusCode || 500, { error: err.statusCode === 413 ? 'payload muito grande' : 'erro interno do servidor' });
 }
 });

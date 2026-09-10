@@ -8,6 +8,9 @@
  * @returns {String} Ficha formatada
  */
 function formatarFicha(analise) {
+  if (!analise || !analise.extracao) {
+    return '🏠 Ficha indisponível — dados insuficientes';
+  }
   const precoFormatado = Number(analise.extracao.preco).toLocaleString('pt-BR');
   const precoM2Formatado = Number(analise.extracao.preco_m2).toLocaleString('pt-BR');
   const financiamento = analise.extracao.aceita_financiamento ? 'Sim' : 'Não';
@@ -30,6 +33,7 @@ function formatarFicha(analise) {
  * @returns {Object} { intencao, dados }
  */
 function parseMensagemCliente(texto) {
+  if (!texto) return { intencao: 'desconhecida', dados: {} };
   const textoLower = texto.toLowerCase();
 
   // Verificar código do imóvel (ex: DFM-123, código 123)
@@ -55,6 +59,10 @@ function parseMensagemCliente(texto) {
     return { intencao: 'duvida', dados: {} };
   }
 
+  if (/ajuda|help|menu|opções|opcoes/.test(textoLower)) {
+    return { intencao: 'ajuda', dados: {} };
+  }
+
   // Intenção desconhecida
   return { intencao: 'desconhecida', dados: {} };
 }
@@ -75,6 +83,8 @@ function respostaAutomatica(intencao, dados) {
       return `Posso preparar uma análise completa! Me envie o link do anúncio.`;
     case 'duvida':
       return `Claro! Posso ajudar. Me envie mais detalhes.`;
+    case 'ajuda':
+      return 'Posso ajudar com:\n• Envie um link de anúncio para análise\n• Digite um código de imóvel\n• Peça para agendar visita\n• Pergunte sobre preços e valores';
     case 'desconhecida':
     default:
       return `Olá! Sou assistente virtual. Envie o link de um imóvel para análise ou digite 'ajuda'.`;
@@ -92,12 +102,11 @@ function ehHorarioComercial(agora) {
 
   // Converter para horário de Brasília (UTC-3)
   const offsetBRT = -3;
-  const utcHours = agora.getUTCHours();
-  const utcMinutes = agora.getUTCMinutes();
-  const horasBRT = (utcHours + offsetBRT + 24) % 24;
-  const minutos = utcMinutes;
-
-  const diaSemana = agora.getUTCDay(); // 0=Dom, 1=Seg, ..., 6=Sab
+  const brtMs = agora.getTime() + (offsetBRT * 60 * 60 * 1000);
+  const brtDate = new Date(brtMs);
+  const diaSemana = brtDate.getUTCDay();
+  const horasBRT = brtDate.getUTCHours();
+  const minutos = brtDate.getUTCMinutes();
 
   const horasDecimais = horasBRT + minutos / 60;
 
@@ -131,7 +140,7 @@ function respostaInteligente(intencao, dados, agora) {
     return `${resposta} Um corretor entrará em contato!`;
   }
 
-  return `Estou fora do horário. Deixe sua mensagem que retorno amanhã!`;
+  return `${resposta}\n\nEstou fora do horário comercial. Deixe sua mensagem que retorno amanhã!`;
 }
 
 // Exportar funções do módulo

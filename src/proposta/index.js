@@ -7,7 +7,7 @@
  */
 
 function formatarMoeda(valor) {
-  if (valor == null || isNaN(valor)) return 'R$ 0';
+  if (valor == null || isNaN(valor) || !isFinite(valor)) return 'R$ 0';
   const num = Number(valor);
   const partes = num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   return 'R$ ' + partes;
@@ -57,8 +57,8 @@ function gerarProposta(analise, config) {
   }
 
   const ex = analise.extracao || {};
-  const validadeDias = config.validadeDias || 10;
-  const comissaoPct = config.comissaoPct || 6;
+  const validadeDias = config.validadeDias ?? 10;
+  const comissaoPct = config.comissaoPct ?? 6;
 
   const preco = ex.preco != null ? formatarMoeda(ex.preco) : 'R$ não informado';
   const precoM2 = ex.preco_m2 != null ? formatarMoeda(ex.preco_m2) : 'R$ não informado';
@@ -69,7 +69,7 @@ function gerarProposta(analise, config) {
   const financiamento = ex.aceita_financiamento ? 'Sim, aceita financiamento' : 'Não aceita financiamento';
   const escritura = ex.tem_escritura ? '✓ registrada' : '✗ pendente';
   const habite_se = ex.tem_habite_se ? '✓ aprovado' : '✗ pendente';
-  const iptu = ex.IPTU ? `R$ ${ex.IPTU}` : 'a verificar';
+  const iptu = (ex.iptu || ex.IPTU) ? `R$ ${ex.iptu || ex.IPTU}` : 'a verificar';
 
   const data = formatarData();
   const corretorNome = config.corretorNome || 'não informado';

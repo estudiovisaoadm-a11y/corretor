@@ -1,28 +1,52 @@
 // Storage MVP — JSON file (db.json). V2 migra para Postgres sem mudar a interface.
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { mediasPorBairro: calcMedias } = require('./db/calc');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'db.json');
+function getDbPath() {
+  return process.env.DB_PATH || path.join(__dirname, '..', 'db.json');
+}
+
+let _cache = null;
+let _cachedPath = null;
 
 function load() {
+  const currentPath = getDbPath();
+  if (_cache && _cachedPath === currentPath) return _cache;
   try {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
     db.analises = db.analises || [];
     db.watchlist = db.watchlist || [];
     db.snapshots = db.snapshots || [];
     db.usuarios = db.usuarios || [];
     db.jobs = db.jobs || [];
+    _cache = db;
+    _cachedPath = currentPath;
     return db;
   } catch {
-    return { analises: [], watchlist: [], snapshots: [], equipe: [], usuarios: [], meta: {} };
+    _cache = { analises: [], watchlist: [], snapshots: [], equipe: [], usuarios: [], meta: {} };
+    _cachedPath = currentPath;
+    return _cache;
   }
 }
 function save(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  const currentPath = getDbPath();
+  _cache = db;
+  _cachedPath = currentPath;
+  const data = JSON.stringify(db, null, 2);
+  const tmpPath = currentPath + '.' + process.pid + '.' + Date.now() + '.tmp';
+  try {
+    fs.writeFileSync(tmpPath, data);
+    fs.renameSync(tmpPath, currentPath);
+  } catch {
+    try { fs.writeFileSync(currentPath, data); } catch (err) {
+      console.error('Failed to save DB:', err);
+    }
+  }
 }
 function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  return (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
 }
 async function healthcheck() { load(); return true; }
 
@@ -30,11 +54,11 @@ function addAnalise(a) {
   const db = load();
   const agoraIso = new Date().toISOString();
   const rec = {
-    id: uid(),
     createdAt: a?.createdAt || a?.criadoEm || agoraIso,
     criadoEm: a?.criadoEm || a?.createdAt || agoraIso,
     status: 'analisado',
-    ...a
+    ...a,
+    id: a?.id || uid()
   };
   db.analises.unshift(rec);
   save(db);

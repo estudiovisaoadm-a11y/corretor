@@ -13,7 +13,7 @@ const SEQUENCIAS = {
     { step: 4, nome: 'Reativação', dias: 14, mensagem: 'Olá {nome}, faz um tempo que conversamos. O mercado no {bairro} está em movimento e tenho novidades que podem te interessar. Podemos retomar a conversa?' },
   ],
   FRIO: [
-    { step: 1, nome: 'Boas-vindas', dias: 0, mensagem: 'Olá {nome}, seja bem-vindo(a)! Fico feliz com seu interesse em imóveis. Sou {nome} e estou à disposição para o que precisar.' },
+    { step: 1, nome: 'Boas-vindas', dias: 0, mensagem: 'Olá {nome}, seja bem-vindo(a)! Fico feliz com seu interesse em imóveis. Estou à disposição para o que precisar.' },
     { step: 2, nome: 'Mercado atualizado', dias: 14, mensagem: 'Olá {nome}, passando para atualizar você sobre o mercado imobiliário. Preços no {bairro} estão bem competitivos. Quer receber um resumo?' },
     { step: 3, nome: 'Oportunidade nova', dias: 30, mensagem: 'Olá {nome}, temos uma nova oportunidade que pode se encaixar no que você procura. O imóvel {codigo} está disponível por {preco}. Quer saber mais?' },
   ],
@@ -39,7 +39,8 @@ function tarefasPendentes(lead, agoraMs) {
 
   if (!lead.followup) {
     const primeiro = sequencia[0];
-    const criadoEm = lead.createdAt || agoraMs;
+    const criadoRaw = lead.createdAt || lead.criadoEm;
+    const criadoEm = criadoRaw ? new Date(criadoRaw).getTime() : agoraMs;
     const diasDesdeCriacao = Math.floor((agoraMs - criadoEm) / 86400000);
     const overdue = diasDesdeCriacao > primeiro.dias;
     return [{ ...primeiro, sequencia: sequenciaNome, overdue, mensagem: primeiro.mensagem }];
@@ -47,7 +48,8 @@ function tarefasPendentes(lead, agoraMs) {
 
   const fu = lead.followup;
   const seq = SEQUENCIA_MAP[fu.sequencia] || sequencia;
-  const inicioEm = lead.followup.inicioEm || lead.createdAt || agoraMs;
+  const inicioRaw = lead.followup.inicioEm || lead.createdAt || lead.criadoEm;
+  const inicioEm = typeof inicioRaw === 'number' ? inicioRaw : (inicioRaw ? new Date(inicioRaw).getTime() : agoraMs);
   const diasDesdeInicio = Math.floor((agoraMs - inicioEm) / 86400000);
   const resultado = [];
 
@@ -111,10 +113,11 @@ function avancarStep(lead, agoraMs) {
 
 function gerarMensagem(step, lead) {
   let msg = step.mensagem || '';
-  const nome = (lead && lead.nome) || '';
-  const codigo = (lead && lead.codigo) || '';
-  const bairro = (lead && lead.bairro) || '';
-  const preco = (lead && lead.preco) || '';
+  const nome = (lead && (lead.nome || (lead.lead && lead.lead.nome))) || 'Cliente';
+  const codigo = (lead && (lead.codigo || lead.codigoImovel || (lead.lead && (lead.lead.codigoImovel || lead.lead.codigo)))) || 'disponível';
+  const bairro = (lead && (lead.bairro || (lead.lead && lead.lead.bairro))) || 'sua região';
+  const precoRaw = (lead && (lead.preco || (lead.extracao && lead.extracao.preco))) || '';
+  const preco = precoRaw ? precoRaw : 'valor a consultar';
   const score = (lead && lead.leadScore && lead.leadScore.faixa) || '';
 
   msg = msg.replace(/\{nome\}/g, nome);

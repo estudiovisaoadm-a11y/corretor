@@ -28,18 +28,26 @@ body.landing-page {
 .landing-nav a { color: var(--ui-ink-secondary); font-size: 12px; letter-spacing: .2px; text-transform: none; }
 .landing-nav a:hover { color: var(--ui-brand); }
 .landing-top-cta {
-  min-height: 44px;
-  padding: 10px 17px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
   background: var(--ui-ink);
-  border: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 99px;
   color: #fff;
+  font-family: var(--ui-font);
   font-size: 12px;
+  font-weight: 700;
   letter-spacing: .1px;
+  text-decoration: none;
   text-transform: none;
+  white-space: nowrap;
 }
 .landing-top-cta:hover { background: var(--ui-brand); color: #fff; }
-.landing-top-cta span, .button span { color: var(--ui-lime); }
-.landing-top-cta .cta-label { color: inherit; }
+.landing-top-cta .cta-label { color: inherit; line-height: 1.2; white-space: nowrap; }
+.landing-top-cta .cta-arrow, .landing-top-cta span:not(.cta-label) { color: var(--ui-lime); font-size: 14px; line-height: 1; }
 /* ==========================================================================
    GEOSPATIAL COMMAND STATION HERO // RADAR REDESIGN
    Palette: Espresso Brown, Dark Coffee, Copper, Amber, Sand
@@ -1082,7 +1090,8 @@ body.landing-page {
 }
 
 @media (max-width: 480px) {
-  .landing-top-cta { padding: 8px 12px; font-size: 11px; }
+  .landing-top-cta { padding: 6px 12px; font-size: 11px; min-height: 34px; gap: 6px; }
+  .landing-top-cta .hide-mobile { display: none; }
   .hero-copy-landing h1 { font-size: 34px; letter-spacing: -1.5px; }
   .hero-actions { flex-direction: column; width: 100%; }
   .button, .text-link { width: 100%; justify-content: center; }

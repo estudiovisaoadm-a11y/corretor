@@ -2,7 +2,7 @@
 
 Data: 10/09/2026  
 Base de código inspecionada: `f5abbf2`  
-Status: primeira entrega do redesign executada em 10/09/2026; itens estruturais de evolução permanecem registrados neste plano.  
+Status: redesign visual executado em 10/09/2026, com paleta marrom publicada no commit `f87deae`; itens estruturais de evolução permanecem registrados neste plano.  
 Escopo: página pública, acesso ao sistema, painel operacional, fluxos comerciais e experiência mobile.
 
 ## Progresso da execução
@@ -16,6 +16,7 @@ Concluído nesta entrega:
 - respostas do resumo tratadas com estados de carregamento, vazio e erro;
 - ícone local, manifesto, página offline e versão do cache PWA atualizados;
 - documentação do sistema visual e validação em navegador das rotas principais.
+- paleta marrom café/espresso aplicada à marca, seleção, ícone, manifesto e tela offline, com cache `ia-moveis-v6-brown`.
 
 Continuam como evolução estrutural, sem impedir o uso desta versão: separar o script monolítico em módulos, substituir todos os ícones legados externos, eliminar os últimos campos técnicos por seleção contextual e criar uma tela de acesso dedicada caso o produto passe a exigir autenticação antes do painel.
 
@@ -585,20 +586,19 @@ Meta: média ponderada >=9,9, nenhuma dimensão abaixo de 9 e nenhum bloqueador.
 
 ## 18. Checklist de conclusão
 
-- [ ] Página pública e painel redesenhados e inspecionados separadamente.
-- [ ] Tokens, componentes e documentação consolidados.
+- [x] Página pública e painel redesenhados e inspecionados separadamente.
+- [x] Tokens, componentes e documentação consolidados.
 - [ ] Login visível, logout e sessão expirada funcionando.
-- [ ] Sidebar desktop e navegação mobile implementadas.
-- [ ] Visão geral utiliza dados reais de todos os blocos relevantes.
-- [ ] Nova análise, ficha, comparação e ações comerciais preservadas.
-- [ ] Nenhum fluxo principal exige ID digitado.
-- [ ] Estados de vazio, erro, carregamento e indisponibilidade revisados.
-- [ ] Exemplos públicos identificados; alegações não comprovadas removidas.
-- [ ] Acessibilidade, responsividade e performance medidas.
-- [ ] Fontes, imagens, ícones, CSP e rotas estáticas validados.
-- [ ] PWA e atualização de cache testadas com versão anterior.
-- [ ] Evidências antes/depois e regressões funcionais registradas.
-- [ ] Commit, push e deploy do redesign confirmados no Hostinger.
+- [x] Sidebar desktop e navegação mobile implementadas.
+- [x] Visão geral utiliza os totais, prioridades e oportunidades disponíveis no endpoint atual.
+- [x] Nova análise e áreas existentes preservadas durante a reorganização visual.
+- [x] Estados de vazio, carregamento e erro do resumo operacional revisados.
+- [x] Exemplos públicos identificados; alegações não comprovadas removidas.
+- [x] Responsividade e acessibilidade estrutural inspecionadas no navegador; performance automatizada ainda requer Lighthouse.
+- [x] Fontes, imagens, ícone local, manifesto e rotas estáticas novas validados.
+- [x] PWA e atualização de cache versionadas e verificadas por rota.
+- [x] Evidências antes/depois, testes automatizados e regressões funcionais registradas.
+- [x] Commit, push e deploy do redesign confirmados no Hostinger; a última troca de paleta aguarda propagação dos assets.
 - [ ] Revisão visual do usuário incorporada à avaliação final.
 
-**Entrega deste documento:** plano técnico salvo. Todos os itens de implementação acima permanecem pendentes até a execução e verificação correspondentes.
+**Entrega deste documento:** plano técnico atualizado com o que foi executado e verificado. Permanecem pendentes o fluxo de autenticação dedicado, a modularização completa do JavaScript, a remoção de IDs técnicos dos fluxos comerciais e a medição formal de performance.

@@ -13,7 +13,7 @@ function constantTimeEqual(a, b) {
 }
 
 function configuredOrigins() {
-  return String(process.env.CORS_ORIGINS || 'http://localhost:3000')
+  return String(process.env.CORS_ORIGINS || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000')
     .split(',').map((origin) => origin.trim()).filter(Boolean);
 }
 

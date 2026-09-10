@@ -15,6 +15,10 @@ test('desenvolvimento mantém configuração local sem credenciais', () => {
   assert.equal(validateConfig({ NODE_ENV: 'development' }).valid, true);
 });
 
+test('Render pode usar a URL externa como origem padrão', () => {
+  assert.equal(validateConfig({ NODE_ENV: 'production', DATABASE_URL: 'postgresql://db', ADMIN_API_KEY: 'a'.repeat(32), AUTH_TOKEN_SECRET: 'b'.repeat(32), RENDER_EXTERNAL_URL: 'https://app.onrender.com' }).valid, true);
+});
+
 test('headers de segurança e CORS são aplicados', () => {
   const headers = {};
   const res = { setHeader: (key, value) => { headers[key] = value; } };

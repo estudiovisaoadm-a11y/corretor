@@ -48,7 +48,7 @@ body.landing-page {
   gap: clamp(40px, 6vw, 96px);
   padding: 150px clamp(24px, 7vw, 104px) 84px;
   background:
-    radial-gradient(circle at 82% 28%, rgb(8 120 110 / 10%), transparent 29%),
+    radial-gradient(circle at 82% 28%, rgb(138 90 59 / 10%), transparent 29%),
     linear-gradient(180deg, #fff, var(--ui-canvas));
 }
 .landing-hero::after { left: 45%; background: linear-gradient(transparent, var(--ui-border), transparent); }
@@ -77,19 +77,28 @@ body.landing-page {
 .hero-proof { border-color: var(--ui-border); color: var(--ui-muted); font-family: var(--ui-font); font-size: 10px; }
 .hero-proof b { color: var(--ui-ink); }
 .landing-visual { height: min(610px, 63vw); min-height: 480px; }
-.visual-glow { background: radial-gradient(ellipse, rgb(8 120 110 / 22%), transparent 62%); }
-.visual-image { inset: 3% 2% 8% 12%; border-radius: 22px; box-shadow: var(--ui-shadow-hover); filter: saturate(.78) contrast(1.02); overflow: hidden; }
-.visual-image::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgb(45 33 27 / 28%), transparent 52%, rgb(45 33 27 / 34%)); pointer-events: none; }
-.radar-interface { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 48%, rgb(216 178 124 / 20%), transparent 44%); }
-.radar-grid { position: relative; width: min(68%, 360px); aspect-ratio: 1; border: 1px solid rgb(255 255 255 / 60%); border-radius: 50%; background: radial-gradient(circle, rgb(255 255 255 / 20%) 0 2px, transparent 3px), linear-gradient(90deg, transparent 49.7%, rgb(255 255 255 / 35%) 50%, transparent 50.3%), linear-gradient(transparent 49.7%, rgb(255 255 255 / 35%) 50%, transparent 50.3%); box-shadow: 0 0 0 24px rgb(255 255 255 / 10%), 0 0 0 25px rgb(255 255 255 / 48%), inset 0 0 50px rgb(216 178 124 / 18%); }
-.radar-grid::before, .radar-grid::after { content: ""; position: absolute; inset: 16%; border: 1px solid rgb(255 255 255 / 45%); border-radius: 50%; }
-.radar-grid::after { inset: 33%; border-color: rgb(255 255 255 / 40%); }
+.visual-glow { background: radial-gradient(ellipse, rgb(138 90 59 / 22%), transparent 62%); }
+.visual-image { inset: 3% 2% 8% 12%; border: 1px solid rgb(216 178 124 / 38%); border-radius: 22px; background: radial-gradient(circle at 50% 46%, rgb(216 178 124 / 22%), transparent 35%), linear-gradient(145deg, #4a3023, #2d211b 58%, #17100d); box-shadow: 0 22px 70px rgb(45 33 27 / 30%), inset 0 0 0 1px rgb(255 255 255 / 8%); overflow: hidden; }
+.visual-image::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgb(216 178 124 / 5%) 1px, transparent 1px), linear-gradient(rgb(216 178 124 / 5%) 1px, transparent 1px), repeating-linear-gradient(0deg, transparent 0 5px, rgb(255 255 255 / 2%) 6px), radial-gradient(circle at 50% 48%, transparent 0 25%, rgb(0 0 0 / 26%) 100%); background-size: 34px 34px, 34px 34px, 100% 7px, 100% 100%; pointer-events: none; }
+.radar-console { position: absolute; z-index: 4; top: 22px; left: 26px; right: 26px; display: flex; justify-content: space-between; align-items: center; color: rgb(255 255 255 / 72%); font: 700 9px/1 var(--ui-font); letter-spacing: 1.2px; }
+.radar-console span { display: inline-flex; gap: 7px; align-items: center; }
+.radar-console span i { width: 6px; height: 6px; border-radius: 50%; background: #e4b67d; box-shadow: 0 0 12px #e4b67d; animation: radar-status-pulse 1.5s ease-in-out infinite; }
+.radar-console b { color: rgb(216 178 124 / 74%); font-size: 8px; font-weight: 600; letter-spacing: .9px; }
+.radar-interface { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 48%, rgb(216 178 124 / 22%), transparent 44%); }
+.radar-interface::after { content: ""; position: absolute; inset: 12% 8%; border: 1px solid rgb(216 178 124 / 13%); clip-path: polygon(0 12px, 12px 12px, 12px 0, calc(100% - 12px) 0, calc(100% - 12px) 12px, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 12px calc(100% - 12px), 0 calc(100% - 12px)); pointer-events: none; }
+.radar-grid { position: relative; width: min(68%, 360px); aspect-ratio: 1; border: 1px solid rgb(216 178 124 / 72%); border-radius: 50%; background: radial-gradient(circle, rgb(216 178 124 / 15%) 0 2px, transparent 3px), linear-gradient(90deg, transparent 49.7%, rgb(216 178 124 / 32%) 50%, transparent 50.3%), linear-gradient(transparent 49.7%, rgb(216 178 124 / 32%) 50%, transparent 50.3%); box-shadow: 0 0 0 24px rgb(216 178 124 / 5%), 0 0 0 25px rgb(216 178 124 / 26%), 0 0 42px rgb(216 178 124 / 16%), inset 0 0 50px rgb(216 178 124 / 15%); }
+.radar-grid::before, .radar-grid::after { content: ""; position: absolute; inset: 16%; border: 1px solid rgb(216 178 124 / 48%); border-radius: 50%; }
+.radar-grid::after { inset: 33%; border-color: rgb(216 178 124 / 42%); }
 .radar-sweep { position: absolute; inset: -1px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg 304deg, rgb(216 178 124 / 0) 316deg, rgb(216 178 124 / 72%) 344deg, transparent 360deg); -webkit-mask: radial-gradient(circle, transparent 0 5%, #000 6% 100%); mask: radial-gradient(circle, transparent 0 5%, #000 6% 100%); animation: radar-scan 4.6s linear infinite; }
 .radar-sweep::after { content: ""; position: absolute; left: 50%; top: 50%; width: 50%; height: 1px; transform-origin: left center; background: linear-gradient(90deg, rgb(216 178 124 / 90%), transparent); box-shadow: 0 0 12px rgb(216 178 124 / 75%); }
-.radar-blip { position: absolute; z-index: 2; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid rgb(255 255 255 / 88%); border-radius: 50%; color: var(--ui-ink); background: var(--ui-lime); box-shadow: 0 0 0 0 rgb(216 178 124 / 65%); font-style: normal; font-size: 14px; animation: radar-ping 2.4s ease-out infinite; }
+.radar-blip { position: absolute; z-index: 2; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #f0c895; border-radius: 50%; color: #2d211b; background: #e4b67d; box-shadow: 0 0 16px rgb(228 182 125 / 72%); font-style: normal; font-size: 14px; animation: radar-ping 2.4s ease-out infinite; }
+.radar-blip b { position: absolute; left: 34px; top: 7px; color: rgb(255 242 222 / 82%); font: 700 7px/1 var(--ui-font); letter-spacing: 1px; white-space: nowrap; }
 .radar-blip::after { content: ""; position: absolute; inset: -7px; border: 1px solid rgb(216 178 124 / 65%); border-radius: 50%; animation: radar-ring 2.4s ease-out infinite; }
 .radar-blip-a { top: 22%; left: 27%; animation-delay: .2s; }.radar-blip-b { top: 33%; right: 18%; animation-delay: .9s; }.radar-blip-c { right: 29%; bottom: 20%; animation-delay: 1.6s; }.radar-blip-d { bottom: 26%; left: 18%; animation-delay: 2.1s; }
-.radar-status { position: absolute; z-index: 3; bottom: 18%; left: 50%; display: inline-flex; align-items: center; gap: 8px; transform: translateX(-50%); padding: 8px 12px; border: 1px solid rgb(255 255 255 / 62%); border-radius: 999px; color: #fff; background: rgb(45 33 27 / 74%); box-shadow: 0 10px 24px rgb(45 33 27 / 20%); font-family: var(--ui-font); font-size: 10px; font-weight: 650; white-space: nowrap; }
+.radar-status { position: absolute; z-index: 3; bottom: 15%; left: 26px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid rgb(216 178 124 / 42%); border-radius: 5px; color: rgb(255 242 222 / 88%); background: rgb(18 12 9 / 76%); box-shadow: 0 10px 24px rgb(0 0 0 / 22%); font-family: var(--ui-font); font-size: 10px; font-weight: 650; white-space: nowrap; }
+.radar-metrics { position: absolute; z-index: 4; right: 26px; bottom: 15%; display: flex; gap: 8px; }
+.radar-metrics span { display: grid; gap: 3px; min-width: 56px; padding: 7px 8px; border: 1px solid rgb(216 178 124 / 28%); border-radius: 5px; color: rgb(255 242 222 / 58%); background: rgb(18 12 9 / 62%); font: 700 7px/1 var(--ui-font); letter-spacing: .7px; text-transform: uppercase; }
+.radar-metrics b { color: #e4b67d; font-size: 12px; letter-spacing: 0; }
 .radar-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--ui-lime); box-shadow: 0 0 0 4px rgb(216 178 124 / 20%); animation: radar-status-pulse 1.5s ease-in-out infinite; }
 @keyframes radar-scan { to { transform: rotate(360deg); } }
 @keyframes radar-ping { 0%, 100% { transform: scale(.92); } 50% { transform: scale(1.1); box-shadow: 0 0 0 8px rgb(216 178 124 / 0%); } }
@@ -110,7 +119,7 @@ body.landing-page {
 .visual-caption { border-color: var(--ui-border); color: var(--ui-muted); font-family: var(--ui-font); }
 .scroll-cue { display: none; }
 .manifesto-section { padding: 128px clamp(24px, 8vw, 120px); background: #fff; color: var(--ui-ink); }
-.manifesto-section::before { color: rgb(8 120 110 / 4%); }
+.manifesto-section::before { color: rgb(138 90 59 / 4%); }
 .eyebrow-dark, .step-kicker { color: var(--ui-brand); }
 .section-intro { margin-bottom: 72px; }
 .section-intro h2, .collection-heading h2, .dashboard-copy h2, .final-cta h2 {
@@ -185,6 +194,12 @@ body.landing-page {
   .visual-image { inset: 2% 0 8% 4%; }
   .glass-score { left: 0; }
   .glass-price { right: 0; }
+  .radar-console { top: 16px; left: 16px; right: 16px; }
+  .radar-console b { display: none; }
+  .radar-status { left: 16px; bottom: 16%; }
+  .radar-metrics { right: 16px; bottom: 16%; gap: 4px; }
+  .radar-metrics span { min-width: 46px; padding: 6px 5px; font-size: 6px; }
+  .radar-metrics span:nth-child(3) { display: none; }
   .manifesto-section, .collection-section, .dashboard-section { padding: 88px 20px; }
   .section-intro h2, .collection-heading h2, .dashboard-copy h2, .final-cta h2 { font-size: 40px; letter-spacing: -2px; }
   .collection-heading { grid-template-columns: 1fr; }

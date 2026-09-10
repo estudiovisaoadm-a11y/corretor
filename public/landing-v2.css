@@ -1070,8 +1070,11 @@ body.landing-page {
     margin: 0 auto;
   }
   .hud-metrics-strip {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .hud-metric-cell {
+    padding: 4px 6px;
   }
   .method-rail { grid-template-columns: 1fr; }
   .property-collection { grid-template-columns: 1fr; }
@@ -1086,9 +1089,11 @@ body.landing-page {
   .radar-header-bar { font-size: 8px; }
   .system-id { font-size: 8.5px; }
   .status-label { font-size: 9px; }
-  .metric-value { font-size: 11.5px; }
-  .card-main-data { flex-direction: column; align-items: flex-start; }
-  .card-score-gauge { align-self: flex-end; margin-top: -36px; }
+  .metric-caption { font-size: 6px; letter-spacing: 0.4px; }
+  .metric-value { font-size: 10.5px; letter-spacing: -0.2px; }
+  .metric-sub { font-size: 6px; }
+  .card-main-data { flex-direction: row; align-items: center; justify-content: space-between; }
+  .card-score-gauge { align-self: center; margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,133 +1,98 @@
-# Design System — IA Imóveis (Horizon Premium)
+# Design System — IA Imóveis
 
-Data: 03/09/2026 · Escopo: `public/index.html` (painel) + ficha WhatsApp (texto)
+Versão: 2.0
+Atualizado em: 10/09/2026
+Escopo: página pública (`/`) e painel (`/dashboard`).
 
-## 1. Identidade Visual
+## Direção
 
-Inspirado no design "Horizon Real Estate" — tom marrom escuro profundo com branco/creme e acentos dourados. Sensação premium, confiança e elegância.
+O IA Imóveis usa uma linguagem clara, precisa e operacional. A página pública apresenta o produto; o painel prioriza dados e próxima ação. Verde-petróleo representa a marca, grafite estrutura a navegação e verde-lima marca seleção sobre superfícies escuras. Fundos claros sustentam a leitura diária.
 
-**Palavras-chave:** premium, quente, confiável, sofisticado.
+O produto não apresenta exemplos como atividade real. Scores demonstrativos, imóveis ilustrativos e previews precisam ser identificados. Informações documentais extraídas do anúncio ainda dependem de confirmação.
 
-## 2. Princípios
+## Fonte de tokens
 
-1. **O score manda:** toda decisão visual prioriza leitura instantânea do veredito (cor + palavra, nunca só número).
-2. **Zero dependência:** CSS vanilla com variáveis — nada de framework, mesma filosofia do backend.
-3. **Mobile do corretor:** alvos ≥44px, tabelas com scroll horizontal, mapa funcional em tela pequena.
-4. **Confiança documental:** risco de documentação sempre em vermelho/âmbar explícito, nunca em cinza neutro.
-5. **Premium sem peso:** glassmorphism e gradientes sutis que comunicam qualidade sem prejudicar performance.
+Os tokens compartilhados ficam em `public/design-tokens.css`. A landing consome `public/landing-v2.css`; o painel consome `public/dashboard-v2.css`. Os arquivos anteriores permanecem como base de compatibilidade até a migração de todos os componentes.
 
-## 3. Tokens
+| Papel | Token | Valor |
+|---|---|---|
+| Fundo | `--ui-canvas` | `#f4f7f6` |
+| Superfície | `--ui-surface` | `#ffffff` |
+| Texto | `--ui-ink` | `#142b2a` |
+| Texto secundário | `--ui-ink-secondary` | `#455c59` |
+| Marca | `--ui-brand` | `#08786e` |
+| Seleção escura | `--ui-lime` | `#c9f36b` |
+| Borda | `--ui-border` | `#dbe6e3` |
+| Perigo | `--ui-danger` | `#b42318` |
 
-### 3.1. Cores
-```css
-:root {
-  /* Marca — escala marrom profundo */
-  --brand-950: #120C07;
-  --brand-900: #1A120B;
-  --brand-800: #2D1F14;
-  --brand-700: #3F2E1E;
-  --brand-600: #5C4330;
-  --accent-500: #C49A3C;  /* dourado — CTAs, selos, acentos */
-  --accent-400: #D4AD52;  /* dourado claro — gradientes */
-  --accent-600: #A47F2E;  /* dourado escuro — bordas de CTA */
+## Tipografia
 
-  /* Score / veredito (única fonte de verdade p/ cor) */
-  --score-otimo: #15803d;   /* 80-100 */
-  --score-bom: #1d4ed8;     /* 60-79 */
-  --score-regular: #b45309; /* 40-59 */
-  --score-risco: #b91c1c;   /* 0-39 + trava documental */
+- Interface: `Inter`, com fallback para `Segoe UI`, `Roboto`, `Helvetica`, `Arial` e `sans-serif`.
+- Acento editorial: serifada do sistema somente em palavras de destaque na apresentação pública.
+- Título público: 48–82 px no desktop e até 68 px no mobile.
+- Título do painel: 26–36 px.
+- Texto de uso: 15–17 px.
+- Rótulo operacional: 11–13 px, sempre com contraste suficiente.
+- Valores usam algarismos tabulares para evitar deslocamento visual.
 
-  /* Funil CRM (1 cor por estágio) */
-  --st-novo: #6b7280;
-  --st-analisado: #1d4ed8;
-  --st-visitado: #7c3aed;
-  --st-proposta: #b45309;
-  --st-fechado: #15803d;
-  --st-descartado: #6a6f77;
+## Estrutura
 
-  /* Superfície e texto */
-  --bg: #F8F4ED;             /* fundo geral creme suave */
-  --surface: #ffffff;
-  --surface-warm: #FBF8F3;   /* fundo alternado tabelas/cards */
-  --border: #E8DDD0;
-  --border-light: #F0E8DC;
-  --text: #1A120B;           /* texto principal */
-  --text-secondary: #3F2E1E; /* subtítulos */
-  --text-muted: #7A6B5A;     /* legendas, captions */
-}
-```
+### Landing
 
-### 3.2. Tipografia (system-ui, com escala)
-`--fs-display: 36px` (título hero) · `--fs-h: 18px` · `--fs-body: 15px` · `--fs-small: 13px` · `--fs-caption: 12px`. Peso 800 em títulos e scores, 700 em botões e valores R$.
+- Cabeçalho fixo claro.
+- Hero em duas colunas com CTA antes da rolagem.
+- Demonstração explicitamente identificada.
+- Método em três cartões.
+- Seção escura para exemplos e seção clara para preview do painel.
+- CTA final verde-petróleo.
 
-### 3.3. Espaçamento, raio, sombra
-Escala 4pt (`--sp-1:4px … --sp-8:32px`) · `--radius-card:16px`, `--radius-field:10px`, `--radius-pill:999px`.
+### Painel
 
-Sombras em 3 níveis:
-- `--shadow-card`: sutil, repouso
-- `--shadow-card-hover`: elevação no hover
-- `--shadow-elevated`: card de busca sobre hero
+- Sidebar fixa de 236 px no desktop.
+- Barra superior de 72 px.
+- Conteúdo fluido com limite visual por grids internos.
+- Navegação inferior no mobile.
+- Visão geral com quatro indicadores, prioridades, oportunidades e atalhos.
+- O hero promocional e o radar ficam fora do fluxo operacional.
 
-## 4. Componentes
+## Componentes
 
 | Componente | Regra |
 |---|---|
-| `btn-primary` (hero CTA) | gradiente dourado accent, hover escurece, shadow dourado |
-| `btn-ghost` / `btn-danger` | ações secundárias (legenda) e destrutivas (remover watch) |
-| `score-badge` | pílula com cor da faixa + veredito em texto; **sempre os dois juntos** |
-| `status-pill` | cor do estágio (tabela §3.1); "descartado" usa cinza tracejado |
-| `table` | zebra warm, hover na linha, header sticky uppercase, scroll-x no mobile |
-| `input/select/textarea` | borda border, foco com anel dourado, placeholder muted |
-| `alert-doc` | bloco âmbar/vermelho com borda esquerda para risco documental |
-| `map-legend` | legenda visível no mapa (verde ≤8k, âmbar ≤10k, vermelho >10k) |
-| `skeleton` | placeholder pulsante em tons creme durante fetch |
-| `search-card` | card glassmorphism sobre o hero, elevação alta |
-| `hstat` | stats glassmorphism sobre fundo escuro, backdrop-blur |
-| `diff` | card de diferencial com ícone gradient e hover elevado |
-| `hist-card` | card de histórico com banner gradient no topo |
+| Botão primário | Verde-petróleo, altura mínima de 44 px e texto explícito |
+| Botão secundário | Fundo branco, borda visível e ação menos dominante |
+| Campo | Label real, borda de controle e anel azul no foco |
+| Indicador | Rótulo, valor, significado e estado indisponível |
+| Score | Número e faixa textual; a cor nunca comunica sozinha |
+| Lista | Divisores discretos, ação contextual e estado vazio útil |
+| Modal/drawer | Título, fechar, Escape, foco inicial e retorno ao acionador |
+| Alerta | Cor semântica, ícone/rótulo e texto de resolução |
 
-## 5. Hero / Header
+## Responsividade
 
-- Gradiente profundo: `#120C07 → #1A120B → #2D1F14 → #3A271A`
-- Glow dourado em radial-gradient (accent com 28% e 15% de opacidade)
-- Grid sutil 48×48px com máscara fade
-- Stats com glassmorphism (blur 8px, border white/12%)
-- Foto decorativa com gradiente marrom→dourado e card overlay
+- Desktop a partir de 981 px: sidebar fixa e conteúdo em grids.
+- Tablet: indicadores em duas colunas e painéis empilhados.
+- Mobile até 560 px: uma coluna, barra inferior, botões largos e formulários empilhados.
+- Respeitar áreas seguras do dispositivo e reservar espaço para a navegação inferior.
+- Rolagem horizontal somente em tabelas e comparação, nunca no documento.
 
-## 6. Mapeamento dado → visual (contrato)
+## Acessibilidade
 
-- Score → `score-otimo/bom/regular/risco` pela mesma função do `score.js`.
-- `precisa_confirmar` não vazio → `alert-doc` âmbar listando os itens.
-- Selo `Imóvel Seguro` → selo dourado com gradiente accent.
-- Mapa: mesma rampa do `mapaCarregar` (red >10k, orange >8k, green demais) + legenda em tela.
+- Foco visível em links, botões e campos.
+- Área de toque mínima de 44×44 px.
+- Número, texto ou ícone acompanham qualquer significado dado por cor.
+- Respeitar `prefers-reduced-motion`.
+- Diálogos possuem nome acessível e fecham por Escape.
+- Mapas e gráficos devem ter alternativa textual.
 
-## 7. Acessibilidade (mínimo)
+## Atualização e cache
 
-- Contraste ≥4.5:1 em texto; pares validados: branco/`#1A120B`, branco/`#15803d`, branco/`#b91c1c`, `#1A120B`/`#F8F4ED`.
-- `:focus-visible` com anel dourado em todo interativo; alvos de toque ≥44px; respeitar `prefers-reduced-motion`.
+O service worker usa o cache `ia-moveis-v5`. HTML, CSS e JavaScript seguem estratégia de rede primeiro. Endpoints `/api/*` nunca são armazenados. Uma versão visual nova deve atualizar o nome do cache e as referências versionadas dos assets na mesma alteração.
 
-## 8. Paleta de referência visual
+## Critérios de revisão
 
-| Uso | Cor | Hex |
-|---|---|---|
-| Hero background (mais escuro) | ████ | `#120C07` |
-| Hero background (base) | ████ | `#1A120B` |
-| Brand primário / botões | ████ | `#2D1F14` |
-| Brand intermediário | ████ | `#3F2E1E` |
-| Brand claro | ████ | `#5C4330` |
-| Dourado CTA | ████ | `#C49A3C` |
-| Dourado claro (gradiente) | ████ | `#D4AD52` |
-| Fundo geral | ████ | `#F8F4ED` |
-| Superfície (cards) | ████ | `#FFFFFF` |
-| Borda | ████ | `#E8DDD0` |
-| Texto principal | ████ | `#1A120B` |
-| Texto muted | ████ | `#7A6B5A` |
-
-## 9. Arquivos atualizados
-
-- [x] `public/styles.css` — tokens + componentes completos
-- [x] `public/index.html` — meta theme-color atualizado
-- [x] `public/offline.html` — cores hardcoded atualizadas
-- [x] `public/manifest.json` — background_color e theme_color
-
-Fora de escopo: dark mode, troca de fonte, framework CSS.
+- A landing e o painel precisam parecer partes do mesmo produto.
+- A primeira tela do painel deve mostrar dados reais ou estados vazios claros.
+- Nenhuma ação principal pode exigir ID digitado quando já existe um registro selecionável.
+- Nenhum exemplo público pode ser entendido como resultado real da conta.
+- O site deve funcionar por teclado e nos tamanhos 390, 768, 1366 e 1440 px.

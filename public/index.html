@@ -1,10 +1,12 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IA Imóveis — Painel</title>
-<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1A120B">
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#142b2a">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="styles.css?v=20260904-mobile">
+<link rel="stylesheet" href="/design-tokens.css?v=20260910">
+<link rel="stylesheet" href="/styles.css?v=20260910">
+<link rel="stylesheet" href="/dashboard-v2.css?v=20260910">
 </head><body>
 <header class="hero"><div class="hero-inner">
-<div class="hero-top"><div class="brand"><span class="brand-mark"><img src="https://cdn-icons-png.flaticon.com/512/6793/6793457.png" alt="home" class="fi" width="20" height="20"></span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
+<div class="hero-top"><div class="brand"><span class="brand-mark"><img src="/icon.svg" alt="" class="fi" width="20" height="20"></span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
 <div class="hero-grid"><div class="hero-copy">
 <span class="hero-kicker">Seu radar imobiliário</span>
 <h1 class="hero-title">Descubra onde agir antes dos outros.</h1>
@@ -21,16 +23,19 @@
 <nav class="app-nav" aria-label="Navegação principal">
   <div class="app-nav-inner">
     <span class="nav-label">Operação</span>
-    <button type="button" class="nav-item active" data-area="inicio" onclick="setArea('inicio')"><span>⌂</span> Início</button>
+    <button type="button" class="nav-item active" data-area="inicio" onclick="setArea('inicio')"><span>⌂</span> Visão geral</button>
     <button type="button" class="nav-item" data-area="imoveis" onclick="setArea('imoveis')"><span>◈</span> Imóveis</button>
     <button type="button" class="nav-item" data-area="mercado" onclick="setArea('mercado')"><span>⌁</span> Mercado</button>
-    <button type="button" class="nav-item" data-area="crm" onclick="setArea('crm')"><span>◎</span> CRM</button>
+    <button type="button" class="nav-item" data-area="crm" onclick="setArea('crm')"><span>◎</span> Atendimento</button>
     <span class="nav-divider"></span>
     <button type="button" class="nav-item" data-area="gestao" onclick="setArea('gestao')"><span>▦</span> Gestão</button>
   </div>
 </nav>
 <main>
-<section class="card search-card area-panel" data-area="inicio"><div class="today-header"><div><div class="section-kicker">Hoje · próxima ação</div><h2>Encontre uma oportunidade para agir</h2><p>Comece por um anúncio e transforme dados em uma decisão comercial.</p></div><span class="today-status"><i></i> Painel operacional</span></div><div class="quick-actions" aria-label="Atalhos do painel"><button type="button" class="quick-action" onclick="setArea('imoveis')"><span aria-hidden="true">◈</span><span><b>Ver imóveis</b><small>Histórico e filtros</small></span></button><button type="button" class="quick-action" onclick="setArea('crm')"><span aria-hidden="true">◎</span><span><b>Atender leads</b><small>Fila e match</small></span></button><button type="button" class="quick-action" onclick="setArea('mercado')"><span aria-hidden="true">⌁</span><span><b>Ver mercado</b><small>Alertas e monitor</small></span></button></div><div class="search-tabs" aria-hidden="true"><span class="tab active">Nova análise</span><span class="tab">Comparar</span><span class="tab">Monitor</span></div><div class="section-kicker">Primeiro movimento</div><h3>Comece por um imóvel</h3>
+<section class="card search-card area-panel" data-area="inicio"><div class="today-header"><div><div class="section-kicker">Visão geral · operação</div><h2>Sua operação, em perspectiva.</h2><p>Prioridades, oportunidades e próximos movimentos em uma única visão.</p></div><span class="today-status"><i></i> Atualizando dados</span></div>
+<div class="overview-metrics" aria-label="Indicadores da operação"><article class="overview-metric"><span>Imóveis analisados</span><strong id="metricProperties">—</strong><small>na sua base</small></article><article class="overview-metric"><span>Contatos pendentes</span><strong id="metricPending">—</strong><small>aguardando ação</small></article><article class="overview-metric is-alert"><span>Atendimentos em atraso</span><strong id="metricOverdue">—</strong><small>fora do SLA</small></article><article class="overview-metric"><span>Oportunidades</span><strong id="metricOpportunities">—</strong><small>abaixo da média</small></article></div>
+<div class="overview-columns"><section class="overview-panel"><div class="overview-panel-head"><h3>Prioridades de atendimento</h3><button type="button" class="btn-ghost btn-sm" onclick="setArea('crm')">Abrir atendimento</button></div><div id="overviewPriorities" class="overview-list"><div class="overview-empty">Carregando prioridades…</div></div></section><section class="overview-panel"><div class="overview-panel-head"><h3>Oportunidades</h3><button type="button" class="btn-ghost btn-sm" onclick="setArea('imoveis')">Ver imóveis</button></div><div id="overviewOpportunities" class="overview-list"><div class="overview-empty">Carregando oportunidades…</div></div></section></div>
+<div class="quick-actions" aria-label="Atalhos do painel"><button type="button" class="quick-action" onclick="setArea('imoveis')"><span aria-hidden="true">◈</span><span><b>Ver imóveis</b><small>Histórico e filtros</small></span></button><button type="button" class="quick-action" onclick="setArea('crm')"><span aria-hidden="true">◎</span><span><b>Atender contatos</b><small>Fila e match</small></span></button><button type="button" class="quick-action" onclick="setArea('mercado')"><span aria-hidden="true">⌁</span><span><b>Ver mercado</b><small>Alertas e monitor</small></span></button></div><div class="search-tabs" aria-hidden="true"><span class="tab active">Nova análise</span><span class="tab">Comparar</span><span class="tab">Monitor</span></div><div class="section-kicker">Nova análise</div><h3>Comece por um imóvel</h3>
 <input id="url" class="w-full" placeholder="Cole o link do anúncio" onkeydown="if(event.key==='Enter'){analisar()}"><br><br>
 <textarea id="texto" class="w-full" rows="3" placeholder="Ou cole o texto: Ap 70m2 R$ 550 mil, aceita financiamento, escritura e habite-se ok"></textarea><br><br>
 <div class="search-submit"><button id="btnAnalisar" onclick="analisar()">Analisar e salvar</button><span class="submit-hint">A análise fica disponível no histórico e nos alertas.</span></div><div id="nova" aria-live="polite"></div></section>
@@ -288,7 +293,7 @@ function setArea(area,move,replace){
   var allowed=['inicio','imoveis','mercado','crm','gestao'];
   if(allowed.indexOf(area)<0)area='inicio';
   document.querySelectorAll('.area-panel').forEach(function(el){el.classList.toggle('is-active',el.dataset.area===area);});
-  var diff=document.querySelector('.diff-strip'); if(diff)diff.style.display=area==='inicio'?'grid':'none';
+  var diff=document.querySelector('.diff-strip'); if(diff)diff.hidden=true;
   document.querySelectorAll('.nav-item').forEach(function(el){
     var active=el.dataset.area===area; el.classList.toggle('active',active);
     if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
@@ -317,14 +322,26 @@ function api(p){return API_BASE+p;}
 async function loadOverview(){
   var status=document.querySelector('.today-status');
   try{
-    var r=await fetch(api('/api/dashboard')).then(function(res){return res.json();});
-    if(!r||!r.totals)return;
-    var title=document.querySelector('.today-header h2');
-    var subtitle=document.querySelector('.today-header p');
-    if(title)title.textContent=r.totals.pending?'Comece pelos contatos que esperam você.':'Encontre uma oportunidade para agir';
-    if(subtitle)subtitle.textContent=r.totals.pending+' contato(s) pendente(s) • '+r.totals.opportunities+' oportunidade(s) abaixo da média.';
-    if(status)status.innerHTML='<i></i> '+(r.totals.overdue?'Atenção: '+r.totals.overdue+' SLA estourado(s)':'Painel operacional atualizado');
-  }catch(e){ if(status)status.innerHTML='<i></i> Dados operacionais indisponíveis'; }
+    var response=await fetch(api('/api/dashboard'));
+    if(!response.ok)throw new Error(response.status===401?'Faça login em Configurações para carregar os dados.':'Falha ao carregar o resumo.');
+    var r=await response.json();
+    if(!r||!r.totals)throw new Error('Resumo indisponível.');
+    document.getElementById('metricProperties').textContent=r.totals.properties;
+    document.getElementById('metricPending').textContent=r.totals.pending;
+    document.getElementById('metricOverdue').textContent=r.totals.overdue;
+    document.getElementById('metricOpportunities').textContent=r.totals.opportunities;
+    var priorities=document.getElementById('overviewPriorities');
+    priorities.innerHTML=r.priorities&&r.priorities.length?r.priorities.slice(0,4).map(function(item){return '<div class="overview-row"><div><b>'+escapeHtml(item.name)+'</b><small>'+escapeHtml(item.assignedTo||'Sem responsável')+' · '+escapeHtml(item.source||'Manual')+'</small></div>'+(item.sla&&item.sla.estourado?'<em>SLA em atraso</em>':'<small>'+escapeHtml((item.sla&&item.sla.label)||'Pendente')+'</small>')+'</div>';}).join(''):'<div class="overview-empty">Nenhum contato pendente agora.</div>';
+    var opportunities=document.getElementById('overviewOpportunities');
+    opportunities.innerHTML=r.opportunities&&r.opportunities.length?r.opportunities.slice(0,4).map(function(item){return '<div class="overview-row"><div><b>'+escapeHtml(item.bairro||item.fonte||'Imóvel analisado')+'</b><small>'+escapeHtml(item.fonte||'Manual')+'</small></div>'+badge(item.score,item.veredito)+'</div>';}).join(''):'<div class="overview-empty">Nenhuma oportunidade ativa.</div>';
+    var stamp=r.updatedAt?new Date(r.updatedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    if(status)status.innerHTML='<i></i> Atualizado'+(stamp?' às '+stamp:'');
+  }catch(e){
+    if(status)status.innerHTML='<i></i> '+escapeHtml(e.message||'Dados indisponíveis');
+    var p=document.getElementById('overviewPriorities'),o=document.getElementById('overviewOpportunities');
+    if(p)p.innerHTML='<div class="overview-empty">'+escapeHtml(e.message||'Dados indisponíveis')+'</div>';
+    if(o)o.innerHTML='<div class="overview-empty">Conecte-se para carregar as oportunidades.</div>';
+  }
 }
 function escapeHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function faixaCls(s){return s>=80?'score-otimo':s>=60?'score-bom':s>=40?'score-regular':'score-risco';}
@@ -614,7 +631,7 @@ async function reatCarregar(){
 }
 
 // PWA
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260904-menu').catch(function(){});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260910-redesign').catch(function(){});}
 carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();loadOverview();
 </script>
 </body></html>

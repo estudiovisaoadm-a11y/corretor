@@ -1,5 +1,5 @@
-const CACHE_NAME = 'ia-moveis-v4';
-const PRECACHE = ['/', '/styles.css', '/landing.css', '/landing.js', '/manifest.json'];
+const CACHE_NAME = 'ia-moveis-v5';
+const PRECACHE = ['/', '/dashboard', '/design-tokens.css?v=20260910', '/styles.css?v=20260910', '/dashboard-v2.css?v=20260910', '/landing.css?v=20260910', '/landing-v2.css?v=20260910', '/landing.js?v=20260910', '/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(PRECACHE)));

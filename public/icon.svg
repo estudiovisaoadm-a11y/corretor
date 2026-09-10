@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="IA Imóveis">
+  <rect width="512" height="512" rx="112" fill="#142b2a"/>
+  <path d="M115 247 256 126l141 121v142a22 22 0 0 1-22 22h-79V300h-80v111h-79a22 22 0 0 1-22-22V247Z" fill="#fff"/>
+  <path d="M256 126 115 247v-58l141-121 141 121v58L256 126Z" fill="#c9f36b"/>
+</svg>
+

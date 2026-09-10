@@ -138,8 +138,20 @@ const server = http.createServer(async (req, res) => {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
   }
+  if (req.method === 'GET' && path === '/design-tokens.css') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'design-tokens.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/dashboard-v2.css') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'dashboard-v2.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
   if (req.method === 'GET' && path === '/landing.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'landing.css'), 'utf8'), 'text/css'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
+  }
+  if (req.method === 'GET' && path === '/landing-v2.css') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'landing-v2.css'), 'utf8'), 'text/css'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
   }
   if (req.method === 'GET' && path === '/landing.js') {
@@ -192,6 +204,10 @@ const server = http.createServer(async (req, res) => {
       filters.perPage = positiveInt(q.perPage, 25, 100);
     }
     return send(res, 200, await store.listAnalises(filters));
+  }
+  if (req.method === 'GET' && path === '/icon.svg') {
+    try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'icon.svg'), 'utf8'), 'image/svg+xml'); }
+    catch { return send(res, 404, { error: 'não encontrado' }); }
   }
   if (req.method === 'GET' && path === '/api/analise') {
     const rec = await store.getAnalise(query(req.url).id);

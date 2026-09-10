@@ -24,6 +24,7 @@ function save(db) {
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
+async function healthcheck() { load(); return true; }
 
 function addAnalise(a) {
   const db = load();
@@ -197,4 +198,5 @@ function contactFind(id) { return entityFind('contatos', id); }
 function opportunityCreate(o={}) { if (!o.contatoId) throw new Error('contatoId é obrigatório'); return entityCreate('oportunidades', o, { etapa: 'novo', prioridade: 'normal', dados: {} }); }
 function opportunityFind(id) { return entityFind('oportunidades', id); }
 
-module.exports = { backend: 'json', addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet, userCreate, userFindByEmail, userCount, jobEnqueue, jobRecover, jobClaim, jobComplete, jobFail, jobList, jobRetry, propertyCreate, propertyFind, listingCreate, listingFind, contactCreate, contactFind, opportunityCreate, opportunityFind };
+module.exports = { backend: 'json', healthcheck, addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet, userCreate, userFindByEmail, userCount, jobEnqueue, jobRecover, jobClaim, jobComplete, jobFail, jobList, jobRetry, propertyCreate, propertyFind, listingCreate, listingFind, contactCreate, contactFind, opportunityCreate, opportunityFind };
+

@@ -21,6 +21,7 @@ const wrap = (fn) => (...args) => Promise.resolve(impl[fn](...args));
 
 module.exports = {
   backend: impl.backend,
+  healthcheck: wrap('healthcheck'),
   addAnalise: wrap('addAnalise'),
   listAnalises: wrap('listAnalises'),
   getAnalise: wrap('getAnalise'),

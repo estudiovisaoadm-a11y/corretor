@@ -2,7 +2,7 @@
 
 Data: 10/09/2026  
 Base de código inspecionada: `f5abbf2`  
-Status: redesign visual executado em 10/09/2026, com paleta marrom publicada no commit `f87deae`; itens estruturais de evolução permanecem registrados neste plano.  
+Status: redesign visual executado em 10/09/2026, com paleta marrom publicada no commit `f87deae`; itens estruturais de evolução permanecem registrados neste plano.
 Escopo: página pública, acesso ao sistema, painel operacional, fluxos comerciais e experiência mobile.
 
 ## Progresso da execução

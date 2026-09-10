@@ -78,7 +78,23 @@ body.landing-page {
 .hero-proof b { color: var(--ui-ink); }
 .landing-visual { height: min(610px, 63vw); min-height: 480px; }
 .visual-glow { background: radial-gradient(ellipse, rgb(8 120 110 / 22%), transparent 62%); }
-.visual-image { inset: 3% 2% 8% 12%; border-radius: 22px; box-shadow: var(--ui-shadow-hover); filter: saturate(.78) contrast(1.02); }
+.visual-image { inset: 3% 2% 8% 12%; border-radius: 22px; box-shadow: var(--ui-shadow-hover); filter: saturate(.78) contrast(1.02); overflow: hidden; }
+.visual-image::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgb(45 33 27 / 28%), transparent 52%, rgb(45 33 27 / 34%)); pointer-events: none; }
+.radar-interface { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 48%, rgb(216 178 124 / 20%), transparent 44%); }
+.radar-grid { position: relative; width: min(68%, 360px); aspect-ratio: 1; border: 1px solid rgb(255 255 255 / 60%); border-radius: 50%; background: radial-gradient(circle, rgb(255 255 255 / 20%) 0 2px, transparent 3px), linear-gradient(90deg, transparent 49.7%, rgb(255 255 255 / 35%) 50%, transparent 50.3%), linear-gradient(transparent 49.7%, rgb(255 255 255 / 35%) 50%, transparent 50.3%); box-shadow: 0 0 0 24px rgb(255 255 255 / 10%), 0 0 0 25px rgb(255 255 255 / 48%), inset 0 0 50px rgb(216 178 124 / 18%); }
+.radar-grid::before, .radar-grid::after { content: ""; position: absolute; inset: 16%; border: 1px solid rgb(255 255 255 / 45%); border-radius: 50%; }
+.radar-grid::after { inset: 33%; border-color: rgb(255 255 255 / 40%); }
+.radar-sweep { position: absolute; inset: -1px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg 304deg, rgb(216 178 124 / 0) 316deg, rgb(216 178 124 / 72%) 344deg, transparent 360deg); -webkit-mask: radial-gradient(circle, transparent 0 5%, #000 6% 100%); mask: radial-gradient(circle, transparent 0 5%, #000 6% 100%); animation: radar-scan 4.6s linear infinite; }
+.radar-sweep::after { content: ""; position: absolute; left: 50%; top: 50%; width: 50%; height: 1px; transform-origin: left center; background: linear-gradient(90deg, rgb(216 178 124 / 90%), transparent); box-shadow: 0 0 12px rgb(216 178 124 / 75%); }
+.radar-blip { position: absolute; z-index: 2; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid rgb(255 255 255 / 88%); border-radius: 50%; color: var(--ui-ink); background: var(--ui-lime); box-shadow: 0 0 0 0 rgb(216 178 124 / 65%); font-style: normal; font-size: 14px; animation: radar-ping 2.4s ease-out infinite; }
+.radar-blip::after { content: ""; position: absolute; inset: -7px; border: 1px solid rgb(216 178 124 / 65%); border-radius: 50%; animation: radar-ring 2.4s ease-out infinite; }
+.radar-blip-a { top: 22%; left: 27%; animation-delay: .2s; }.radar-blip-b { top: 33%; right: 18%; animation-delay: .9s; }.radar-blip-c { right: 29%; bottom: 20%; animation-delay: 1.6s; }.radar-blip-d { bottom: 26%; left: 18%; animation-delay: 2.1s; }
+.radar-status { position: absolute; z-index: 3; bottom: 18%; left: 50%; display: inline-flex; align-items: center; gap: 8px; transform: translateX(-50%); padding: 8px 12px; border: 1px solid rgb(255 255 255 / 62%); border-radius: 999px; color: #fff; background: rgb(45 33 27 / 74%); box-shadow: 0 10px 24px rgb(45 33 27 / 20%); font-family: var(--ui-font); font-size: 10px; font-weight: 650; white-space: nowrap; }
+.radar-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--ui-lime); box-shadow: 0 0 0 4px rgb(216 178 124 / 20%); animation: radar-status-pulse 1.5s ease-in-out infinite; }
+@keyframes radar-scan { to { transform: rotate(360deg); } }
+@keyframes radar-ping { 0%, 100% { transform: scale(.92); } 50% { transform: scale(1.1); box-shadow: 0 0 0 8px rgb(216 178 124 / 0%); } }
+@keyframes radar-ring { 0% { transform: scale(.65); opacity: .95; } 100% { transform: scale(1.45); opacity: 0; } }
+@keyframes radar-status-pulse { 50% { opacity: .45; transform: scale(.8); } }
 .visual-frame { display: none; }
 .glass-float {
   border: 1px solid var(--ui-border);

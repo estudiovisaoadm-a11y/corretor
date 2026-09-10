@@ -1,9 +1,9 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IA Imóveis — Painel</title>
-<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#142b2a">
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#2d211b">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="/design-tokens.css?v=20260910">
-<link rel="stylesheet" href="/styles.css?v=20260910">
-<link rel="stylesheet" href="/dashboard-v2.css?v=20260910">
+<link rel="stylesheet" href="/design-tokens.css?v=20260910-brown">
+<link rel="stylesheet" href="/styles.css?v=20260910-brown">
+<link rel="stylesheet" href="/dashboard-v2.css?v=20260910-brown">
 </head><body>
 <header class="hero"><div class="hero-inner">
 <div class="hero-top"><div class="brand"><span class="brand-mark"><img src="/icon.svg" alt="" class="fi" width="20" height="20"></span><b>IA Imóveis</b><span class="hero-src">DFImóveis • WImóveis • NetImóveis</span></div><span id="total" class="hero-total"></span></div>
@@ -631,7 +631,7 @@ async function reatCarregar(){
 }
 
 // PWA
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260910-redesign').catch(function(){});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260910-brown').catch(function(){});}
 carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();loadOverview();
 </script>
 </body></html>

@@ -6,7 +6,7 @@ Escopo: página pública (`/`) e painel (`/dashboard`).
 
 ## Direção
 
-O IA Imóveis usa uma linguagem clara, precisa e operacional. A página pública apresenta o produto; o painel prioriza dados e próxima ação. Verde-petróleo representa a marca, grafite estrutura a navegação e verde-lima marca seleção sobre superfícies escuras. Fundos claros sustentam a leitura diária.
+O IA Imóveis usa uma linguagem clara, precisa e operacional. A página pública apresenta o produto; o painel prioriza dados e próxima ação. Marrom café representa a marca, espresso estrutura a navegação e areia marca seleção sobre superfícies escuras. Fundos claros sustentam a leitura diária.
 
 O produto não apresenta exemplos como atividade real. Scores demonstrativos, imóveis ilustrativos e previews precisam ser identificados. Informações documentais extraídas do anúncio ainda dependem de confirmação.
 
@@ -18,10 +18,10 @@ Os tokens compartilhados ficam em `public/design-tokens.css`. A landing consome 
 |---|---|---|
 | Fundo | `--ui-canvas` | `#f4f7f6` |
 | Superfície | `--ui-surface` | `#ffffff` |
-| Texto | `--ui-ink` | `#142b2a` |
+| Texto | `--ui-ink` | `#2d211b` |
 | Texto secundário | `--ui-ink-secondary` | `#455c59` |
-| Marca | `--ui-brand` | `#08786e` |
-| Seleção escura | `--ui-lime` | `#c9f36b` |
+| Marca | `--ui-brand` | `#8a5a3b` |
+| Seleção escura | `--ui-lime` | `#d8b27c` |
 | Borda | `--ui-border` | `#dbe6e3` |
 | Perigo | `--ui-danger` | `#b42318` |
 
@@ -44,7 +44,7 @@ Os tokens compartilhados ficam em `public/design-tokens.css`. A landing consome 
 - Demonstração explicitamente identificada.
 - Método em três cartões.
 - Seção escura para exemplos e seção clara para preview do painel.
-- CTA final verde-petróleo.
+- CTA final marrom café.
 
 ### Painel
 

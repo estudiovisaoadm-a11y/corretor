@@ -1,16 +1,16 @@
 :root {
-  --ui-canvas: #f4f7f6;
+  --ui-canvas: #f7f3ee;
   --ui-surface: #ffffff;
-  --ui-surface-subtle: #edf3f1;
-  --ui-ink: #142b2a;
-  --ui-ink-secondary: #455c59;
-  --ui-muted: #657976;
-  --ui-border: #dbe6e3;
-  --ui-brand: #08786e;
-  --ui-brand-hover: #056259;
-  --ui-brand-soft: #e0f3ef;
-  --ui-lime: #c9f36b;
-  --ui-success: #167a4b;
+  --ui-surface-subtle: #f1eae2;
+  --ui-ink: #2d211b;
+  --ui-ink-secondary: #665248;
+  --ui-muted: #89776b;
+  --ui-border: #e5d8cc;
+  --ui-brand: #8a5a3b;
+  --ui-brand-hover: #70452d;
+  --ui-brand-soft: #f2e5d8;
+  --ui-lime: #d8b27c;
+  --ui-success: #7b6248;
   --ui-warning: #a15c14;
   --ui-danger: #b42318;
   --ui-info: #2367c9;
@@ -18,8 +18,8 @@
   --ui-radius-sm: 8px;
   --ui-radius: 14px;
   --ui-radius-lg: 22px;
-  --ui-shadow: 0 16px 48px rgb(20 43 42 / 9%);
-  --ui-shadow-hover: 0 20px 56px rgb(20 43 42 / 14%);
+  --ui-shadow: 0 16px 48px rgb(45 33 27 / 9%);
+  --ui-shadow-hover: 0 20px 56px rgb(45 33 27 / 14%);
   --ui-sidebar: 236px;
   --ui-content: 1440px;
   --ui-ease: cubic-bezier(.22, 1, .36, 1);
@@ -35,4 +35,3 @@ body { text-rendering: optimizeLegibility; }
   outline-offset: 2px;
 }
 ::selection { background: var(--ui-brand); color: #fff; }
-

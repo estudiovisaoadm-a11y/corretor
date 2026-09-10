@@ -1,6 +1,14 @@
 // Backend Postgres (pg). Mesma interface do store JSON + watchlist + snapshots.
 const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const connectionString = String(process.env.DATABASE_URL || '').trim();
+// Supabase exige TLS nas conexões PostgreSQL públicas. Mantemos a opção
+// automática para não exigir uma segunda variável no ambiente de produção.
+const supabaseConnection = /supabase\.(?:co|com)\b/i.test(connectionString);
+const sslModeRequired = /(?:[?&]|^)sslmode=require(?:&|$)/i.test(connectionString);
+const pool = new Pool({
+  connectionString,
+  ...(supabaseConnection || sslModeRequired ? { ssl: { rejectUnauthorized: false } } : {})
+});
 async function healthcheck() { await pool.query('SELECT 1'); return true; }
 
 function rowToRec(r) {

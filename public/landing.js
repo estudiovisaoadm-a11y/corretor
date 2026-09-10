@@ -20,6 +20,6 @@
       }
     };
     locate();
-    window.setInterval(locate,1200);
+    window.setInterval(locate,925);
   }
 })();

@@ -93,11 +93,31 @@ header.hero {
 }
 header.hero::before, header.hero::after, .hero-grid { display: none; }
 .hero-inner { max-width: none; padding: 0 clamp(20px, 3vw, 42px); }
-.hero-top { min-height: 72px; padding: 0; }
+.hero-top { min-height: 72px; padding: 0; display: flex; align-items: center; justify-content: space-between; }
 .brand { color: var(--ui-ink); font-size: 15px; }
-.brand-mark { width: 36px; height: 36px; border-radius: 9px; background: var(--ui-ink); box-shadow: none; }
+.brand-mark { width: 36px; height: 36px; border-radius: 99px; background: var(--ui-ink); box-shadow: none; }
 .brand-mark .fi { filter: invert(1); }
 .hero-src { color: var(--ui-muted); opacity: 1; }
+.hero-top-actions { display: flex; align-items: center; gap: 10px; }
+.header-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  background: var(--ui-ink);
+  color: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: 99px;
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.2s var(--ui-ease);
+}
+.header-site-link span { color: var(--ui-lime); font-size: 13px; }
+.header-site-link:hover { background: var(--ui-brand); color: #fff; transform: translateY(-1px); }
 .hero-total { border: 1px solid var(--ui-border); background: var(--ui-surface); color: var(--ui-ink-secondary); box-shadow: 0 2px 8px rgb(45 33 27 / 5%); }
 
 main {
@@ -246,6 +266,7 @@ tr:hover td { background: #f7faf9; }
   header.hero { min-height: 64px; }
   .brand-mark { width: 34px; height: 34px; }
   .hero-total { display: none; }
+  .header-site-link { padding: 5px 10px; font-size: 10px; }
   main { padding: 16px 12px; }
   .card { padding: 18px 15px; border-radius: 12px; }
   .today-header { display: block; }

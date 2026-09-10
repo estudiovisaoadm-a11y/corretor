@@ -50,17 +50,17 @@ body.landing-page {
   gap: clamp(40px, 6vw, 96px);
   padding: 150px clamp(24px, 7vw, 104px) 84px;
   background:
-    radial-gradient(circle at 82% 28%, rgb(138 90 59 / 10%), transparent 29%),
-    linear-gradient(90deg, transparent 0 49.9%, rgb(138 90 59 / 6%) 50%, transparent 50.1%),
-    repeating-linear-gradient(90deg, transparent 0 79px, rgb(138 90 59 / 3%) 80px),
-    linear-gradient(180deg, #fff, var(--ui-canvas));
+    radial-gradient(circle at 76% 50%, rgb(138 90 59 / 26%), transparent 32%),
+    linear-gradient(90deg, transparent 0 49.9%, rgb(216 178 124 / 13%) 50%, transparent 50.1%),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgb(216 178 124 / 5%) 80px),
+    linear-gradient(145deg, #241710, #3b2519 52%, #1a110d);
 }
-.landing-hero::before { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none; opacity: .7; background: radial-gradient(circle at 78% 48%, transparent 0 18%, rgb(138 90 59 / 4%) 18.2% 18.35%, transparent 18.5% 31%, rgb(138 90 59 / 3%) 31.2% 31.35%, transparent 31.5%), linear-gradient(135deg, transparent 0 65%, rgb(138 90 59 / 4%) 65.1% 65.2%, transparent 65.3%); }
-.landing-hero::after { left: 45%; background: linear-gradient(transparent, var(--ui-border), transparent); }
-.eyebrow { margin-bottom: 20px; color: var(--ui-brand); font-family: var(--ui-font); font-size: 11px; font-weight: 750; letter-spacing: .9px; }
+.landing-hero::before { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none; opacity: .8; background: radial-gradient(circle at 78% 48%, transparent 0 18%, rgb(216 178 124 / 11%) 18.2% 18.35%, transparent 18.5% 31%, rgb(216 178 124 / 7%) 31.2% 31.35%, transparent 31.5%), repeating-linear-gradient(0deg, transparent 0 5px, rgb(255 255 255 / 2%) 6px), linear-gradient(135deg, transparent 0 65%, rgb(216 178 124 / 8%) 65.1% 65.2%, transparent 65.3%); }
+.landing-hero::after { left: 45%; background: linear-gradient(transparent, rgb(216 178 124 / 36%), transparent); }
+.eyebrow { margin-bottom: 20px; color: #e4b67d; font-family: var(--ui-font); font-size: 11px; font-weight: 750; letter-spacing: .9px; }
 .hero-copy-landing h1 {
   max-width: 10ch;
-  color: var(--ui-ink);
+  color: #fff4e6;
   font-family: var(--ui-font);
   font-size: clamp(48px, 6vw, 82px);
   font-weight: 650;
@@ -72,15 +72,15 @@ body.landing-page {
 .collection-heading h2 em,
 .dashboard-copy h2 em,
 .final-cta h2 em { color: var(--ui-brand); font-family: var(--ui-display); font-weight: 500; }
-.hero-lede { color: var(--ui-ink-secondary); font-size: 17px; }
+.hero-lede { color: rgb(255 244 230 / 72%); font-size: 17px; }
 .button { min-height: 48px; border-radius: 10px; font-family: var(--ui-font); font-size: 12px; letter-spacing: .1px; text-transform: none; }
-.button-primary { background: var(--ui-brand); color: #fff; }
+.button-primary { background: #b87545; color: #fff; box-shadow: 0 0 22px rgb(184 117 69 / 26%); }
 .button-primary:hover { background: var(--ui-brand-hover); }
-.text-link { color: var(--ui-ink-secondary); font-family: var(--ui-font); font-size: 12px; text-transform: none; }
+.text-link { color: rgb(255 244 230 / 70%); font-family: var(--ui-font); font-size: 12px; text-transform: none; }
 .text-link:hover { color: var(--ui-brand); }
 .text-link span { color: var(--ui-brand); }
-.hero-proof { border-color: var(--ui-border); color: var(--ui-muted); font-family: var(--ui-font); font-size: 10px; }
-.hero-proof b { color: var(--ui-ink); }
+.hero-proof { border-color: rgb(216 178 124 / 32%); color: rgb(255 244 230 / 56%); font-family: var(--ui-font); font-size: 10px; }
+.hero-proof b { color: #f4d5ae; }
 .landing-visual { height: min(610px, 63vw); min-height: 480px; }
 .visual-glow { background: radial-gradient(ellipse, rgb(138 90 59 / 22%), transparent 62%); }
 .visual-image { inset: 3% 2% 8% 12%; border: 1px solid rgb(216 178 124 / 38%); border-radius: 22px; background: radial-gradient(circle at 50% 46%, rgb(216 178 124 / 22%), transparent 35%), linear-gradient(145deg, #4a3023, #2d211b 58%, #17100d); box-shadow: 0 22px 70px rgb(45 33 27 / 30%), inset 0 0 0 1px rgb(255 255 255 / 8%); overflow: hidden; }

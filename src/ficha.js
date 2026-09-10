@@ -56,6 +56,17 @@ function analisar({ url, texto = '', preco = null, area = null, localizacaoNota 
   };
 }
 
+function analisarComExtracao(input, iaExtracao) {
+  const base = analisar(input);
+  if (!iaExtracao) return base;
+  const e = { ...base.extracao, ...iaExtracao };
+  const preco = input.preco ?? e.preco;
+  const area = input.area ?? e.area_m2;
+  const preco_m2 = preco && area ? Math.round(preco / area) : e.preco_m2;
+  const score = calcScore({ precoM2: preco_m2, mediaBairro: base.media_bairro_ref, localizacaoNota: input.localizacaoNota ?? 6, extracao: e, seloImovelSeguro: base.parsed.selos?.imovelSeguro === true, oportunidadeSinal: base.parsed.oportunidadeSinal === true });
+  return { ...base, bairro: e.bairro || base.bairro, extracao: { ...e, preco, area_m2: area, preco_m2 }, ...score };
+}
+
 function fichaMarkdown(a) {
   const e = a.extracao;
   const fmt = (v) => v === true ? '✅ Sim' : v === false ? '❌ Não' : '⚠️ Confirmar';
@@ -84,4 +95,4 @@ function fichaMarkdown(a) {
   ].join('\n');
 }
 
-module.exports = { analisar, fichaMarkdown, mediaDoBairro };
+module.exports = { analisar, analisarComExtracao, fichaMarkdown, mediaDoBairro };

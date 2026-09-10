@@ -30,10 +30,10 @@
   </div>
 </nav>
 <main>
-<section class="card search-card area-panel" data-area="inicio"><div class="search-tabs" aria-hidden="true"><span class="tab active">Nova análise</span><span class="tab">Comparar</span><span class="tab">Monitor</span></div><div class="section-kicker">Primeiro movimento</div><h3>Comece por um imóvel</h3>
+<section class="card search-card area-panel" data-area="inicio"><div class="today-header"><div><div class="section-kicker">Hoje · próxima ação</div><h2>Encontre uma oportunidade para agir</h2><p>Comece por um anúncio e transforme dados em uma decisão comercial.</p></div><span class="today-status"><i></i> Painel operacional</span></div><div class="quick-actions" aria-label="Atalhos do painel"><button type="button" class="quick-action" onclick="setArea('imoveis')"><span aria-hidden="true">◈</span><span><b>Ver imóveis</b><small>Histórico e filtros</small></span></button><button type="button" class="quick-action" onclick="setArea('crm')"><span aria-hidden="true">◎</span><span><b>Atender leads</b><small>Fila e match</small></span></button><button type="button" class="quick-action" onclick="setArea('mercado')"><span aria-hidden="true">⌁</span><span><b>Ver mercado</b><small>Alertas e monitor</small></span></button></div><div class="search-tabs" aria-hidden="true"><span class="tab active">Nova análise</span><span class="tab">Comparar</span><span class="tab">Monitor</span></div><div class="section-kicker">Primeiro movimento</div><h3>Comece por um imóvel</h3>
 <input id="url" class="w-full" placeholder="Cole o link do anúncio" onkeydown="if(event.key==='Enter'){analisar()}"><br><br>
 <textarea id="texto" class="w-full" rows="3" placeholder="Ou cole o texto: Ap 70m2 R$ 550 mil, aceita financiamento, escritura e habite-se ok"></textarea><br><br>
-<button id="btnAnalisar" onclick="analisar()">Analisar e salvar</button> <span id="nova"></span></section>
+<div class="search-submit"><button id="btnAnalisar" onclick="analisar()">Analisar e salvar</button><span class="submit-hint">A análise fica disponível no histórico e nos alertas.</span></div><div id="nova" aria-live="polite"></div></section>
 <div class="grid">
 <section class="card area-panel" data-area="imoveis">
   <div class="card-header">
@@ -113,7 +113,7 @@
     </div>
   </div>
   <div class="form-row">
-    <input id="legId" class="flex-grow" placeholder="Cole o ID da análise aqui (ex: analise-1234)">
+    <input id="legId" class="flex-grow" placeholder="Selecione um imóvel no histórico" aria-label="Imóvel selecionado" readonly>
     <button class="btn-primary" onclick="legenda()"><img src="https://cdn-icons-png.flaticon.com/512/3176/3176296.png" alt="edit pencil" class="fi" width="20" height="20"> Gerar legenda</button>
     <button class="btn-ghost" onclick="valorizacao()"><img src="https://cdn-icons-png.flaticon.com/512/3281/3281296.png" alt="trending up" class="fi" width="20" height="20"> Previsão valorização</button>
   </div>
@@ -258,21 +258,30 @@
 <div class="settings-panel" id="settingsPanel" hidden role="dialog" aria-labelledby="settingsTitle">
   <div class="settings-panel-card">
     <div class="settings-panel-head"><div><span class="section-kicker">Preferências de conexão</span><h3 id="settingsTitle">Configurar ambiente</h3></div><button class="settings-close" type="button" aria-label="Fechar configurações" onclick="toggleSettings(false)">×</button></div>
-    <p class="settings-help">Defina o backend e a chave de acesso usados pelo dashboard neste dispositivo.</p>
-    <div class="settings-form"><label for="apiBase">Backend</label><div class="settings-field"><input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"><small>URL da API</small></div><button class="btn-primary settings-save" onclick="setApi()">Salvar</button><label for="apiKey">Chave</label><div class="settings-field"><input id="apiKey" type="password" autocomplete="off" placeholder="ADMIN_API_KEY (opcional no desenvolvimento)"><small>Armazenada somente nesta sessão</small></div></div>
+    <p class="settings-help">Defina o backend e a credencial usados pelo dashboard neste dispositivo.</p>
+    <div class="settings-form"><label for="apiBase">Backend</label><div class="settings-field"><input id="apiBase" placeholder="https://seu-backend.onrender.com (vazio = mesma origem)"><small>URL da API</small></div><button class="btn-primary settings-save" onclick="setApi()">Salvar</button><label for="apiKey">Chave</label><div class="settings-field"><input id="apiKey" type="password" autocomplete="off" placeholder="ADMIN_API_KEY (compatibilidade)"><small>Armazenada somente nesta sessão</small></div></div>
+    <div class="auth-box"><span class="section-kicker">ACESSO INDIVIDUAL</span><div class="auth-row"><input id="authEmail" type="email" autocomplete="username" placeholder="Seu e-mail"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Sua senha"><button class="btn-primary btn-sm" onclick="loginPainel()">Entrar</button></div><small id="authStatus" class="settings-help">Use seu usuário para gerar um token seguro de acesso.</small></div>
+  </div>
+</div>
+<div class="context-modal" id="contextModal" hidden role="dialog" aria-modal="true" aria-labelledby="contextTitle">
+  <div class="context-modal-card">
+    <div class="context-modal-head"><div><span class="section-kicker" id="contextKicker">Ficha operacional</span><h2 id="contextTitle">Detalhes</h2></div><button class="settings-close" type="button" aria-label="Fechar ficha" onclick="closeContext()">×</button></div>
+    <div id="contextBody"></div>
   </div>
 </div>
 <script>
 // API_BASE: ?api= na URL (salva) > localStorage > mesma origem. Permite hospedar este HTML em PHP/HTML estático.
 var API_BASE=(new URLSearchParams(location.search).get('api')||localStorage.getItem('corretor_api')||'').replace(/\/$/,'');
 var API_KEY=sessionStorage.getItem('corretor_api_key')||'';
+var API_TOKEN=sessionStorage.getItem('corretor_api_token')||'';
+var propertyCache={};
 if(new URLSearchParams(location.search).get('api'))localStorage.setItem('corretor_api',API_BASE);
 var nativeFetch=window.fetch.bind(window);
 window.fetch=function(input,init){
   init=init||{};
   var target=typeof input==='string'?input:input.url;
   var sameApi=target.indexOf('/api/')===0 || (API_BASE && target.indexOf(API_BASE+'/api/')===0);
-  if(API_KEY && sameApi){init.headers=Object.assign({},init.headers||{}, {'X-API-Key':API_KEY});}
+  if(sameApi){init.headers=Object.assign({},init.headers||{}, API_TOKEN?{'Authorization':'Bearer '+API_TOKEN}:{'X-API-Key':API_KEY});}
   return nativeFetch(input,init);
 };
 function setArea(area,move,replace){
@@ -296,6 +305,7 @@ function setArea(area,move,replace){
   }
 }
 function setApi(){var v=document.getElementById('apiBase').value.trim().replace(/\/$/,'');var k=document.getElementById('apiKey').value.trim();localStorage.setItem('corretor_api',v);if(k)sessionStorage.setItem('corretor_api_key',k);else sessionStorage.removeItem('corretor_api_key');location.reload();}
+async function loginPainel(){var email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value,status=document.getElementById('authStatus');if(!email||!password){status.textContent='Informe e-mail e senha.';return;}status.textContent='Validando acesso…';try{var r=await nativeFetch(api('/api/auth/login'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password})});var data=await r.json();if(!r.ok)throw new Error(data.error||'Credenciais inválidas');sessionStorage.setItem('corretor_api_token',data.token);sessionStorage.removeItem('corretor_api_key');status.textContent='Acesso ativo para '+(data.user.nome||data.user.email)+'.';setTimeout(function(){location.reload();},300);}catch(e){status.textContent=e.message||'Falha ao entrar.';}}
 function toggleSettings(open){var panel=document.getElementById('settingsPanel'),button=document.getElementById('settingsToggle');if(open===undefined)open=panel.hidden;panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)window.setTimeout(function(){document.getElementById('apiBase').focus();},0);}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.getElementById('settingsPanel').hidden)toggleSettings(false);});
 document.getElementById('apiBase').value=API_BASE;
@@ -304,6 +314,18 @@ window.addEventListener('hashchange',function(){setArea(location.hash.slice(1)||
 window.addEventListener('popstate',function(e){setArea((e.state&&e.state.area)||location.hash.slice(1)||'inicio',true,true);});
 setArea(location.hash.slice(1)||'inicio',false,true);
 function api(p){return API_BASE+p;}
+async function loadOverview(){
+  var status=document.querySelector('.today-status');
+  try{
+    var r=await fetch(api('/api/dashboard')).then(function(res){return res.json();});
+    if(!r||!r.totals)return;
+    var title=document.querySelector('.today-header h2');
+    var subtitle=document.querySelector('.today-header p');
+    if(title)title.textContent=r.totals.pending?'Comece pelos contatos que esperam você.':'Encontre uma oportunidade para agir';
+    if(subtitle)subtitle.textContent=r.totals.pending+' contato(s) pendente(s) • '+r.totals.opportunities+' oportunidade(s) abaixo da média.';
+    if(status)status.innerHTML='<i></i> '+(r.totals.overdue?'Atenção: '+r.totals.overdue+' SLA estourado(s)':'Painel operacional atualizado');
+  }catch(e){ if(status)status.innerHTML='<i></i> Dados operacionais indisponíveis'; }
+}
 function escapeHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function faixaCls(s){return s>=80?'score-otimo':s>=60?'score-bom':s>=40?'score-regular':'score-risco';}
 function curta(v){v=v||'';if(v.indexOf('ÓTIMA')===0)return'Ótima';if(v.indexOf('BOM')===0)return'Bom';if(v.indexOf('REGULAR')===0)return'Regular';return'Risco';}
@@ -325,6 +347,26 @@ function copiarTexto(id, btn){
     setTimeout(function(){btn.innerHTML=old;},2000);
   });
 }
+function openProperty(id){
+  var a=propertyCache[id]; if(!a)return;
+  var e=a.extracao||{};
+  document.getElementById('contextKicker').textContent='Ficha do imóvel';
+  document.getElementById('contextTitle').textContent=a.bairro||a.fonte||'Imóvel analisado';
+  document.getElementById('contextBody').innerHTML='<div class="context-summary"><div><span class="context-label">Score da análise</span>'+badge(a.score,a.veredito)+'</div><div><span class="context-label">Status comercial</span><span class="pill st-'+escapeHtml(a.status||'novo')+'">'+escapeHtml(a.status||'novo')+'</span></div><div><span class="context-label">Fonte</span><strong>'+escapeHtml(a.fonte||'Manual')+'</strong></div></div><div class="context-grid"><div><span class="context-label">Preço</span><strong>'+escapeHtml(e.preco||'Não informado')+'</strong></div><div><span class="context-label">Área</span><strong>'+escapeHtml(e.area||'Não informada')+'</strong></div><div><span class="context-label">Preço por m²</span><strong>'+escapeHtml(e.preco_m2||'Não calculado')+'</strong></div><div><span class="context-label">Documentação</span><strong>'+escapeHtml((e.documentacao&&e.documentacao.join(', '))||'Informação pendente')+'</strong></div></div><div class="context-source">'+(a.url?'<a href="'+escapeHtml(a.url)+'" target="_blank" rel="noopener">Abrir anúncio original ↗</a>':'Análise criada manualmente')+' <span>• '+escapeHtml(a.id)+'</span></div><div class="context-actions"><button class="btn-primary" onclick="selectAnalysis(\''+escapeHtml(a.id)+'\');closeContext();legenda(\''+escapeHtml(a.id)+'\')">Gerar legenda</button><button class="btn-ghost" onclick="selectAnalysis(\''+escapeHtml(a.id)+'\');closeContext();valorizacao()">Prever valorização</button><button class="btn-ghost" onclick="selectAnalysis(\''+escapeHtml(a.id)+'\');closeContext();setArea(\'crm\')">Enviar para CRM</button></div>';
+  document.getElementById('contextModal').hidden=false;
+  document.body.classList.add('modal-open');
+}
+function openContact(lead){
+  var l=lead&&lead.lead||lead||{}; var id=lead&&lead.id||l.id||'';
+  document.getElementById('contextKicker').textContent='Ficha de atendimento';
+  document.getElementById('contextTitle').textContent=l.nome||'Lead sem nome';
+  document.getElementById('contextBody').innerHTML='<div class="context-summary"><div><span class="context-label">Prioridade</span>'+leadBadge((lead.leadScore&&lead.leadScore.faixa)||'MORNO')+'</div><div><span class="context-label">Responsável</span><strong>'+escapeHtml(lead.corretorNome||'A distribuir')+'</strong></div><div><span class="context-label">Origem</span><strong>'+escapeHtml(lead.fonte||'Não informada')+'</strong></div></div><div class="context-grid"><div><span class="context-label">Telefone</span><strong>'+escapeHtml(l.telefone||l.whatsapp||'Não informado')+'</strong></div><div><span class="context-label">E-mail</span><strong>'+escapeHtml(l.email||'Não informado')+'</strong></div><div><span class="context-label">Interesse</span><strong>'+escapeHtml(l.interesse||l.preferencia||'A confirmar')+'</strong></div><div><span class="context-label">SLA</span><strong>'+((lead.leadScore&&lead.leadScore.score)||'—')+' pontos</strong></div></div><div class="context-actions"><button class="btn-primary" onclick="selectLead(\''+escapeHtml(id)+'\');closeContext();matchVer()">Encontrar imóveis</button><button class="btn-ghost" onclick="selectLead(\''+escapeHtml(id)+'\');closeContext();fuVer()">Ver follow-up</button></div>';
+  document.getElementById('contextModal').hidden=false; document.body.classList.add('modal-open');
+}
+function closeContext(){document.getElementById('contextModal').hidden=true;document.body.classList.remove('modal-open');}
+function selectAnalysis(id){legId.value=id;propId.value=id;var a=propertyCache[id];if(a)legId.title=(a.bairro||'Imóvel')+' · '+id;}
+function selectLead(id){matchId.value=id;fuId.value=id;}
+document.getElementById('contextModal').addEventListener('click',function(e){if(e.target===this)closeContext();});
 
 async function analisar(){
  const btn=document.getElementById('btnAnalisar');
@@ -349,7 +391,8 @@ async function carregar(){
   if(!h.length){
     hist.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nenhuma análise no histórico</div><div class="empty-desc">Cole o link de um anúncio no topo e clique em Analisar para iniciar seu histórico.</div></div>';
   } else {
-    hist.innerHTML='<div class="table-wrap"><table><tr><th></th><th>Score</th><th>Veredito</th><th>R$/m²</th><th>Bairro</th><th>Status</th><th></th></tr>'+h.map(a=>'<tr><td><input type=checkbox class=sel value='+a.id+'></td><td>'+badge(a.score,a.veredito)+'</td><td>'+escapeHtml(a.veredito)+'</td><td>'+escapeHtml(a.extracao.preco_m2||'—')+'</td><td>'+escapeHtml(a.bairro||a.fonte)+'</td><td><select onchange="status_(\''+a.id+'\',this.value)">'+['novo','analisado','visitado','proposta','fechado','descartado'].map(s=>'<option '+(a.status===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><button class="btn-ghost btn-sm" onclick="legenda(\''+a.id+'\')">legenda</button></td></tr>').join('')+'</table></div>';
+    h.forEach(function(a){propertyCache[a.id]=a;});
+    hist.innerHTML='<div class="table-wrap"><table><tr><th></th><th>Score</th><th>Veredito</th><th>R$/m²</th><th>Bairro</th><th>Status</th><th>Ações</th></tr>'+h.map(a=>'<tr class="property-row" ondblclick="openProperty(\''+escapeHtml(a.id)+'\')"><td><input type=checkbox class=sel value="'+escapeHtml(a.id)+'" onclick="event.stopPropagation()"></td><td>'+badge(a.score,a.veredito)+'</td><td>'+escapeHtml(a.veredito)+'</td><td>'+escapeHtml((a.extracao||{}).preco_m2||'—')+'</td><td><button class="context-link" onclick="openProperty(\''+escapeHtml(a.id)+'\')">'+escapeHtml(a.bairro||a.fonte)+'</button></td><td><select onchange="status_(\''+a.id+'\',this.value)">'+['novo','analisado','visitado','proposta','fechado','descartado'].map(s=>'<option '+(a.status===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><button class="btn-ghost btn-sm" onclick="selectAnalysis(\''+escapeHtml(a.id)+'\');legenda(\''+escapeHtml(a.id)+'\')">Legenda</button></td></tr>').join('')+'</table></div>';
   }
   const f=await fetch(api('/api/funil')).then(r=>r.json());
   var FUNIL_LABELS={novo:'Novo',analisado:'Analisado',visitado:'Visitado',proposta:'Proposta',fechado:'Fechado',descartado:'Descartado'};
@@ -483,7 +526,7 @@ async function eqDel(id){if(!confirm('Remover este corretor da equipe?'))return;
 async function filaCarregar(){
   try{
     const f=await fetch(api('/api/fila')).then(r=>r.json());
-    fila.innerHTML=f.length?f.map(l=>'<div class="item-row"><div class="item-info">'+leadBadge(l.leadScore.faixa)+' <b>'+escapeHtml((l.lead&&l.lead.nome)||'Lead')+'</b> <small style="color:var(--text-muted)">'+escapeHtml(l.fonte)+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small></div><div class="item-actions"><button class="btn-ghost btn-sm" onclick="matchVer(\''+l.id+'\')">match</button></div></div>').join(''):'<div class="subcard-empty">Sem leads na fila de atendimento.</div>';
+    fila.innerHTML=f.length?f.map(l=>'<div class="item-row contact-row" ondblclick="openContact(propertyCache[\''+escapeHtml(l.id)+'\']||null)"><div class="item-info">'+leadBadge(l.leadScore.faixa)+' <button class="context-link" onclick="openContact('+JSON.stringify(l).replace(/"/g,'&quot;')+')"><b>'+escapeHtml((l.lead&&l.lead.nome)||'Lead')+'</b></button> <small style="color:var(--text-muted)">'+escapeHtml(l.fonte)+' • '+(l.corretorNome||'sem corretor')+' • score '+l.leadScore.score+'</small></div><div class="item-actions"><button class="btn-ghost btn-sm" onclick="selectLead(\''+l.id+'\');matchVer()">Encontrar imóveis</button></div></div>').join(''):'<div class="subcard-empty">Sem leads na fila de atendimento.</div>';
     const s=await fetch(api('/api/sla')).then(r=>r.json());
     sla.innerHTML='<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:13px"><span>A distribuir: <b>'+s.paraDistribuir.length+'</b></span> • <span style="color:var(--score-risco)">SLA estourado: <b>'+s.slaEstourado.length+'</b></span> • <span style="color:var(--score-otimo)">Dentro do prazo: <b>'+s.ok.length+'</b></span></div>';
   }catch(e){fila.innerHTML='<div class="alert-doc crit">Falha ao carregar fila.</div>';}
@@ -572,6 +615,6 @@ async function reatCarregar(){
 
 // PWA
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=20260904-menu').catch(function(){});}
-carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();
+carregar();monCarregar();mapaCarregar();eqCarregar();filaCarregar();loadOverview();
 </script>
 </body></html>

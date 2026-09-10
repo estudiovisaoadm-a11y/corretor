@@ -3,3 +3,7 @@ db.json
 .env
 .git/
 *.log
+tests/
+docs/
+design-system.md
+blueprint-ia-imoveis.md

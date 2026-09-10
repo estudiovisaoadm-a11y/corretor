@@ -1,0 +1,12 @@
+{
+  "baseUrl": "https://opencode.ai/zen/v1",
+  "endpoint": "/responses",
+  "apiKeyEnv": "OPENCODE_API_KEY",
+  "models": ["muse-spark-1.3-contributor-free"],
+  "reasoning": { "effort": "high" },
+  "max_output_tokens": 8192,
+  "timeoutMs": 20000,
+  "freeOnly": true,
+  "pricingSource": "https://opencode.ai/docs/zen#pricing",
+  "capabilitiesSource": "https://models.dev/api.json"
+}

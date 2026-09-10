@@ -11,9 +11,11 @@ function load() {
     db.analises = db.analises || [];
     db.watchlist = db.watchlist || [];
     db.snapshots = db.snapshots || [];
+    db.usuarios = db.usuarios || [];
+    db.jobs = db.jobs || [];
     return db;
   } catch {
-    return { analises: [], watchlist: [], snapshots: [], equipe: [], meta: {} };
+    return { analises: [], watchlist: [], snapshots: [], equipe: [], usuarios: [], meta: {} };
   }
 }
 function save(db) {
@@ -48,7 +50,15 @@ function listAnalises(f = {}) {
     const q = f.q.toLowerCase();
     arr = arr.filter((a) => JSON.stringify(a).toLowerCase().includes(q));
   }
-  return arr;
+  // Compatibilidade: sem paginação explícita o contrato histórico continua sendo um array.
+  if (f.page == null && f.perPage == null && f.limit == null && f.offset == null) return arr;
+  const page = Number.isInteger(f.page) && f.page > 0 ? f.page : 1;
+  const perPage = Number.isInteger(f.perPage) && f.perPage > 0 ? Math.min(f.perPage, 100) : 25;
+  const offset = Number.isInteger(f.offset) && f.offset >= 0 ? f.offset : (page - 1) * perPage;
+  const limit = Number.isInteger(f.limit) && f.limit > 0 ? Math.min(f.limit, 100) : perPage;
+  const total = arr.length;
+  const items = arr.slice(offset, offset + limit);
+  return { items, total, page: Math.floor(offset / limit) + 1, perPage: limit, totalPages: Math.ceil(total / limit) };
 }
 function getAnalise(id) {
   return load().analises.find((a) => a.id === id) || null;
@@ -143,4 +153,48 @@ function metaSet(chave, valor) {
   return { ok: true };
 }
 
-module.exports = { backend: 'json', addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet };
+function userCreate(user) {
+  const db = load();
+  db.usuarios = db.usuarios || [];
+  if (db.usuarios.some((u) => u.email.toLowerCase() === user.email.toLowerCase())) {
+    const e = new Error('email já cadastrado'); e.code = 'USER_EXISTS'; throw e;
+  }
+  const rec = { id: uid(), email: user.email.toLowerCase(), nome: user.nome || user.email, role: user.role || 'corretor', passwordHash: user.passwordHash, createdAt: new Date().toISOString(), ativo: true };
+  db.usuarios.push(rec); save(db); return rec;
+}
+function userFindByEmail(email) { return (load().usuarios || []).find((u) => u.email === String(email).toLowerCase()) || null; }
+function userCount() { return (load().usuarios || []).length; }
+
+function jobEnqueue(job) {
+  const db = load(); db.jobs = db.jobs || [];
+  const rec = { ...job, state: 'queued', attempts: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  db.jobs.push(rec); save(db); return rec;
+}
+function jobRecover(cutoff) {
+  const db = load(); let n = 0;
+  for (const j of (db.jobs || [])) if (j.state === 'running' && j.lockedAt < cutoff) { j.state = 'queued'; j.updatedAt = new Date().toISOString(); n++; }
+  if (n) save(db); return n;
+}
+function jobClaim(now, leaseMs) {
+  const db = load(); const j = (db.jobs || []).filter(x => x.state === 'queued' && (!x.runAt || x.runAt <= now)).sort((a,b) => a.createdAt.localeCompare(b.createdAt))[0];
+  if (!j) return null;
+  j.state = 'running'; j.attempts = (j.attempts || 0) + 1; j.lockedAt = now; j.updatedAt = now; save(db); return j;
+}
+function jobComplete(id, result) { const db = load(); const j = (db.jobs || []).find(x => x.id === id); if (!j) return null; j.state='completed'; j.result=result ?? null; j.lockedAt=null; j.updatedAt=new Date().toISOString(); save(db); return j; }
+function jobFail(id, error, terminal) { const db = load(); const j=(db.jobs||[]).find(x=>x.id===id); if(!j) return null; j.state=terminal?'failed':'queued'; j.error=error; j.lockedAt=null; j.updatedAt=new Date().toISOString(); save(db); return j; }
+function jobList(f={}) { let a=load().jobs||[]; if(f.state) a=a.filter(j=>j.state===f.state); if(f.type) a=a.filter(j=>j.type===f.type); return a.slice().sort((x,y)=>y.createdAt.localeCompare(x.createdAt)); }
+function jobRetry(id) { const db=load(); const j=(db.jobs||[]).find(x=>x.id===id); if(!j) return null; j.state='queued'; j.error=null; j.lockedAt=null; j.updatedAt=new Date().toISOString(); save(db); return j; }
+
+// Entidades normalizadas V6, mantidas no JSON para desenvolvimento sem Postgres.
+function entityCreate(collection, data, defaults = {}) { const db = load(); db[collection] = db[collection] || []; const rec = { id: uid(), createdAt: new Date().toISOString(), ...defaults, ...data }; db[collection].unshift(rec); save(db); return rec; }
+function entityFind(collection, id) { return (load()[collection] || []).find((x) => x.id === id) || null; }
+function propertyCreate(p={}) { return entityCreate('imoveis', p, { status: 'ativo', dados: {} }); }
+function propertyFind(id) { return entityFind('imoveis', id); }
+function listingCreate(a={}) { return entityCreate('anuncios', a, { disponivel: true, dados: {} }); }
+function listingFind(id) { return entityFind('anuncios', id); }
+function contactCreate(c={}) { return entityCreate('contatos', c, { nome: c.nome || 'Contato', status: 'ativo', preferencias: {}, dados: {} }); }
+function contactFind(id) { return entityFind('contatos', id); }
+function opportunityCreate(o={}) { if (!o.contatoId) throw new Error('contatoId é obrigatório'); return entityCreate('oportunidades', o, { etapa: 'novo', prioridade: 'normal', dados: {} }); }
+function opportunityFind(id) { return entityFind('oportunidades', id); }
+
+module.exports = { backend: 'json', addAnalise, listAnalises, getAnalise, setStatus, updateAnalise, mediasPorBairro, funil, watchAdd, watchList, watchRemove, addSnapshot, listSnapshots, equipeAdd, equipeList, equipeToggle, equipeRemove, metaGet, metaSet, userCreate, userFindByEmail, userCount, jobEnqueue, jobRecover, jobClaim, jobComplete, jobFail, jobList, jobRetry, propertyCreate, propertyFind, listingCreate, listingFind, contactCreate, contactFind, opportunityCreate, opportunityFind };

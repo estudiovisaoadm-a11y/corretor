@@ -2,7 +2,8 @@
 const http = require('http');
 const fs = require('fs');
 const pathMod = require('path');
-const { analisar, fichaMarkdown } = require('./src/ficha');
+const { analisar, analisarComExtracao, fichaMarkdown } = require('./src/ficha');
+const { extrairComIA } = require('./src/ia/service');
 const { handleIncoming } = require('./src/bot/handler');
 const { sendText } = require('./src/bot/evolution');
 const store = require('./src/db');
@@ -24,8 +25,15 @@ const { metricasGerais, tempoResposta, velocityFunil, conversaoPorCorretor, conv
 const { gerarProposta, validarProposta, resumoProposta } = require('./src/proposta');
 const { candidatosReativacao, gerarMensagemReativacao, classificarLead } = require('./src/reativacao');
 const { applySecurityHeaders, isAuthorized, rateLimit, readJson, verifyWebhook, idempotencyKey, MAX_BODY_BYTES } = require('./src/security');
+const { hashPassword, login, authenticate } = require('./src/auth');
+const { PersistentQueue } = require('./src/jobs/queue');
 
 const RR_CHAVE = 'distribuicao:rr';
+const { buildOverview } = require('./src/dashboard');
+const jobs = new PersistentQueue(store, { handlers: {
+  monitor: () => runMonitor(store, fetchTextoAnuncio)
+} });
+jobs.start({ intervalMs: Number(process.env.JOB_INTERVAL_MS) || 1000 }).catch((e) => console.error('fila não iniciou:', e.message));
 async function distribuirESalvar(reg) {
   const equipe = await store.equipeList();
   const estado = (await store.metaGet(RR_CHAVE)) || { ultimoIndice: -1 };
@@ -73,14 +81,16 @@ function send(res, code, obj, type = 'application/json') {
   res.end(body);
 }
 function query(url) {
-  const i = url.indexOf('?');
   const out = {};
-  if (i < 0) return out;
-  for (const p of url.slice(i + 1).split('&')) {
-    const [k, v] = p.split('=');
-    out[decodeURIComponent(k)] = decodeURIComponent(v || '');
-  }
+  try {
+    for (const [k, v] of new URL(url, 'http://localhost').searchParams) out[k] = v;
+  } catch { return out; }
   return out;
+}
+function positiveInt(value, fallback, max = 100) {
+  if (value == null || value === '') return fallback;
+  const n = Number(value);
+  return Number.isSafeInteger(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function painelHtml() {
@@ -98,7 +108,23 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') return send(res, 204, '');
     if (path === '/healthz' && req.method === 'GET') return send(res, 200, { ok: true });
     if (path === '/readyz' && req.method === 'GET') return send(res, 200, { ok: true, backend: store.backend });
-    if (path.startsWith('/api/') && !isAuthorized(req)) return send(res, 401, { error: 'autenticação necessária' });
+    if (req.method === 'POST' && path === '/api/auth/login') {
+      const input = await readJson(req);
+      if (!input.email || !input.password) return send(res, 400, { error: 'email e senha são obrigatórios' });
+      const result = await login(input.email, input.password);
+      return result ? send(res, 200, result) : send(res, 401, { error: 'credenciais inválidas' });
+    }
+    if (path === '/api/auth/bootstrap' && req.method === 'POST') {
+      if (await store.userCount()) return send(res, 409, { error: 'bootstrap já realizado' });
+      const input = await readJson(req);
+      if (!input.email || !input.password || String(input.password).length < 10) return send(res, 400, { error: 'email e senha (mínimo 10 caracteres) são obrigatórios' });
+      const user = await store.userCreate({ email: input.email, nome: input.nome, role: 'admin', passwordHash: hashPassword(input.password) });
+      return send(res, 201, { user: { id: user.id, email: user.email, nome: user.nome, role: user.role } });
+    }
+    if (path.startsWith('/api/') && !isAuthorized(req) && !(await authenticate(req))) return send(res, 401, { error: 'autenticação necessária' });
+    if (req.method === 'GET' && path === '/api/dashboard') {
+      return send(res, 200, buildOverview(await store.listAnalises({})));
+    }
   if (req.method === 'GET' && path === '/styles.css') {
     try { return send(res, 200, fs.readFileSync(pathMod.join(__dirname, 'public', 'styles.css'), 'utf8'), 'text/css'); }
     catch { return send(res, 404, { error: 'não encontrado' }); }
@@ -137,7 +163,12 @@ const server = http.createServer(async (req, res) => {
     let texto = input.texto || input._raw || '';
     if (input.url && !texto) texto = await fetchTextoAnuncio(input.url);
     else if (input.url && texto.length < 8000) texto = texto + '\n' + await fetchTextoAnuncio(input.url);
-    const r = analisar({ url: input.url, texto, preco: input.preco ?? null, area: input.area ?? null, localizacaoNota: input.localizacaoNota ?? 6 });
+    const entrada = { url: input.url, texto, preco: input.preco ?? null, area: input.area ?? null, localizacaoNota: input.localizacaoNota ?? 6 };
+    let r = analisar(entrada);
+    if (input.usarIA !== false && texto) {
+      try { const ia = await extrairComIA(texto); r = analisarComExtracao(entrada, ia.extraction); r.ia = { provider: ia.provider, model: ia.model, status: 'ok' }; }
+      catch (e) { r.ia = { status: 'local', motivo: e.message }; }
+    } else r.ia = { status: 'local' };
     r.ficha = fichaMarkdown(r);
     const saved = await store.addAnalise({ ...r, origem: 'painel' });
     return send(res, 200, saved);
@@ -145,7 +176,13 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && path === '/api/historico') {
     const q = query(req.url);
-    return send(res, 200, await store.listAnalises({ fonte: q.fonte || undefined, status: q.status || undefined, q: q.q || undefined, minScore: q.minScore ? Number(q.minScore) : undefined, financiavel: q.financiavel === '1', comEscritura: q.comEscritura === '1' }));
+    const filters = { fonte: q.fonte || undefined, status: q.status || undefined, q: q.q || undefined, minScore: q.minScore ? Number(q.minScore) : undefined, financiavel: q.financiavel === '1', comEscritura: q.comEscritura === '1' };
+    // Only opt into the new envelope when pagination is requested, preserving old clients.
+    if (q.page != null || q.perPage != null) {
+      filters.page = positiveInt(q.page, 1, 1000000);
+      filters.perPage = positiveInt(q.perPage, 25, 100);
+    }
+    return send(res, 200, await store.listAnalises(filters));
   }
   if (req.method === 'GET' && path === '/api/analise') {
     const rec = await store.getAnalise(query(req.url).id);
@@ -210,6 +247,18 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'POST' && path === '/api/monitor/run') {
     return send(res, 200, await runMonitor(store, fetchTextoAnuncio));
+  }
+  if (req.method === 'POST' && path === '/api/monitor/enqueue') {
+    return send(res, 202, await jobs.enqueue('monitor'));
+  }
+  if (req.method === 'GET' && path === '/api/jobs') {
+    const q = query(req.url);
+    return send(res, 200, await jobs.list({ state: q.state, type: q.type }));
+  }
+  if (req.method === 'POST' && path === '/api/jobs/retry') {
+    const input = await readJson(req);
+    const job = await jobs.retry(input.id);
+    return job ? send(res, 200, job) : send(res, 404, { error: 'tarefa não encontrada' });
   }
 
   if (req.method === 'GET' && path === '/feed/xml') {
@@ -327,4 +376,17 @@ const server = http.createServer(async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Sistema rodando em http://localhost:${PORT}`));
+const httpServer = server.listen(PORT, () => console.log(`Sistema rodando em http://localhost:${PORT}`));
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Encerrando por ${signal}...`);
+  jobs.stop();
+  await new Promise((resolve) => httpServer.close(resolve));
+  if (store.pool?.end) await store.pool.end().catch(() => {});
+}
+process.once('SIGTERM', () => shutdown('SIGTERM').then(() => process.exit(0)));
+process.once('SIGINT', () => shutdown('SIGINT').then(() => process.exit(0)));
+process.on('uncaughtException', (error) => { console.error('Erro não tratado:', error); shutdown('uncaughtException').then(() => process.exit(1)); });
+process.on('unhandledRejection', (error) => { console.error('Promise rejeitada:', error); });

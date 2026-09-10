@@ -1,0 +1,14 @@
+{
+  "providers": [
+    { "id": "openrouter", "config": "./openrouter.config.json" },
+    { "id": "opencode", "config": "./opencode.config.json", "enabled": true }
+  ],
+  "fallback": {
+    "onHttpStatus": [401, 402, 403, 408, 429, 500, 502, 503, 504],
+    "onNetworkError": true,
+    "onInvalidResponse": true,
+    "maxProviderAttempts": 2,
+    "totalTimeoutMs": 45000,
+    "final": "local"
+  }
+}

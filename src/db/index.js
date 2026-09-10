@@ -39,4 +39,10 @@ module.exports = {
   equipeRemove: wrap('equipeRemove'),
   metaGet: wrap('metaGet'),
   metaSet: wrap('metaSet')
+  ,userCreate: wrap('userCreate'), userFindByEmail: wrap('userFindByEmail'), userCount: wrap('userCount')
+  ,jobEnqueue: wrap('jobEnqueue'), jobRecover: wrap('jobRecover'), jobClaim: wrap('jobClaim'), jobComplete: wrap('jobComplete'), jobFail: wrap('jobFail'), jobList: wrap('jobList'), jobRetry: wrap('jobRetry')
+  ,propertyCreate: wrap('propertyCreate'), propertyFind: wrap('propertyFind')
+  ,listingCreate: wrap('listingCreate'), listingFind: wrap('listingFind')
+  ,contactCreate: wrap('contactCreate'), contactFind: wrap('contactFind')
+  ,opportunityCreate: wrap('opportunityCreate'), opportunityFind: wrap('opportunityFind')
 };

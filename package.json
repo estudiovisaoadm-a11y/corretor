@@ -5,8 +5,11 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
+    "start:production": "node scripts/start-production.js",
+    "db:migrate": "node scripts/migrate.js",
+    "ops:preflight": "node scripts/preflight.js",
     "demo": "node demo.js",
-    "test": "node --test test-*.js",
+    "test": "node --test",
     "test:bot": "node test-webhook.js",
     "test:security": "node --test test-fetch-anuncio.js test-security.js"
   },
